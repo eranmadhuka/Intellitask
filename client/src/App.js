@@ -9,12 +9,12 @@ import Home from './pages/Home';
 import NotFound from './pages/NotFound';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import AboutUs from './pages/AboutUs';
+import About from './pages/About';
 import Contact from './pages/Contact';
 
 
 // Admin Dashboard components
-import Dashboard from './pages/dashboard/Admin/Dashboard';
+import Dashboard from './pages/dashboard/admin/Dashboard';
 
 // Student Dashboard components
 import UserDashboard from './pages/dashboard/user/userDashboard';
@@ -44,9 +44,9 @@ function PublicLayout() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/about" element={<AboutUs />} />
+        <Route path="/about" element={<About />} />
         {/* <Route path="/services" element={<Services />} /> */}
-        {/* <Route path="/contact" element={<Contact />} /> */}
+        <Route path="/contact" element={<Contact />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />
@@ -57,7 +57,7 @@ function PublicLayout() {
 function AdminDashboardLayout() {
   return (
     <Routes>
-      {/* <Route index element={<Dashboard />} /> */}
+      <Route index element={<Dashboard />} />
     </Routes>
   );
 }
@@ -65,7 +65,7 @@ function AdminDashboardLayout() {
 function UserDashboardLayout() {
   return (
     <Routes>
-      {/* <Route index element={<UserDashboard />} /> */}
+      <Route index element={<UserDashboard />} />
     </Routes>
   );
 }

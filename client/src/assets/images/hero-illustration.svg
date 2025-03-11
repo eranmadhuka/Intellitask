@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f9fafb" />
+      <stop offset="100%" stop-color="#e2e8f0" />
+    </linearGradient>
+    <linearGradient id="buttonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5" />
+      <stop offset="100%" stop-color="#4338ca" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background shape -->
+  <rect x="0" y="0" width="800" height="600" fill="url(#bgGradient)" rx="10" />
+  
+  <!-- App window -->
+  <rect x="100" y="100" width="600" height="400" rx="20" fill="white" stroke="#e2e8f0" stroke-width="2" filter="drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.1))" />
+  
+  <!-- App header -->
+  <rect x="100" y="100" width="600" height="60" rx="20" fill="url(#buttonGradient)" stroke="#4338ca" stroke-width="2" />
+  <text x="140" y="140" font-family="Arial" font-size="24" fill="white" font-weight="bold">IntelliTask</text>
+  
+  <!-- Task list container -->
+  <rect x="130" y="180" width="290" height="290" rx="10" fill="white" stroke="#e2e8f0" stroke-width="2" />
+  
+  <!-- Task items -->
+  <rect x="150" y="200" width="250" height="50" rx="5" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1" />
+  <circle cx="170" cy="225" r="10" fill="white" stroke="#4f46e5" stroke-width="2" />
+  <line x1="166" y1="225" x2="174" y2="225" stroke="#4f46e5" stroke-width="2" />
+  <text x="190" y="230" font-family="Arial" font-size="14" fill="#1e293b">Complete project proposal</text>
+  <text x="190" y="245" font-family="Arial" font-size="10" fill="#64748b">Today, 5:00 PM</text>
+  
+  <rect x="150" y="260" width="250" height="50" rx="5" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1" />
+  <circle cx="170" cy="285" r="10" fill="#4f46e5" stroke="#4f46e5" stroke-width="2" />
+  <text x="190" y="290" font-family="Arial" font-size="14" fill="#1e293b">Team meeting</text>
+  <text x="190" y="305" font-family="Arial" font-size="10" fill="#64748b">Tomorrow, 10:00 AM</text>
+  
+  <rect x="150" y="320" width="250" height="50" rx="5" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1" />
+  <circle cx="170" cy="345" r="10" fill="white" stroke="#4f46e5" stroke-width="2" />
+  <line x1="166" y1="345" x2="174" y2="345" stroke="#4f46e5" stroke-width="2" />
+  <text x="190" y="350" font-family="Arial" font-size="14" fill="#1e293b">Review marketing materials</text>
+  <text x="190" y="365" font-family="Arial" font-size="10" fill="#64748b">Fri, 3:30 PM</text>
+  
+  <rect x="150" y="380" width="250" height="50" rx="5" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1" />
+  <circle cx="170" cy="405" r="10" fill="white" stroke="#4f46e5" stroke-width="2" />
+  <line x1="166" y1="405" x2="174" y2="405" stroke="#4f46e5" stroke-width="2" />
+  <text x="190" y="410" font-family="Arial" font-size="14" fill="#1e293b">Send client invoice</text>
+  <text x="190" y="425" font-family="Arial" font-size="10" fill="#64748b">Fri, 5:00 PM</text>
+  
+  <!-- Person illustration -->
+  <g transform="translate(470, 230)">
+    <!-- Head -->
+    <circle cx="0" cy="0" r="35" fill="#fcd34d" stroke="#f59e0b" stroke-width="2" />
+    
+    <!-- Face features -->
+    <circle cx="-10" cy="-10" r="5" fill="#1e293b" /> <!-- Left eye -->
+    <circle cx="10" cy="-10" r="5" fill="#1e293b" /> <!-- Right eye -->
+    <path d="M-12,15 Q0,25 12,15" fill="none" stroke="#1e293b" stroke-width="3" stroke-linecap="round" /> <!-- Smile -->
+    
+    <!-- Hair -->
+    <path d="M-30,-15 Q-10,-40 0,-35 Q10,-40 30,-15" fill="#1e293b" stroke="#1e293b" stroke-width="2" />
+    
+    <!-- Body/shoulders -->
+    <path d="M-35,40 Q-15,50 0,50 Q15,50 35,40" fill="#3b82f6" stroke="#2563eb" stroke-width="2" />
+    
+    <!-- Speech bubble with text -->
+    <path d="M50,-30 Q110,0 60,30 L45,25 Q40,40 50,30 L30,20 Q-10,-5 50,-30 Z" fill="white" stroke="#64748b" stroke-width="2" />
+    <text x="65" y="-5" font-family="Arial" font-size="10" fill="#1e293b" text-anchor="middle">Add meeting</text>
+    <text x="65" y="10" font-family="Arial" font-size="10" fill="#1e293b" text-anchor="middle">with marketing</text>
+  </g>
+  
+  <!-- Large microphone illustration -->
+  <g transform="translate(600, 380)">
+    <!-- Microphone base -->
+    <rect x="-30" y="30" width="60" height="20" rx="5" fill="#4f46e5" stroke="#4338ca" stroke-width="2" />
+    
+    <!-- Microphone stand -->
+    <rect x="-5" y="-40" width="10" height="70" rx="2" fill="#4338ca" stroke="#4338ca" stroke-width="1" />
+    
+    <!-- Microphone head -->
+    <ellipse cx="0" cy="-55" rx="25" ry="30" fill="#4f46e5" stroke="#4338ca" stroke-width="2" />
+    
+    <!-- Microphone mesh/grid -->
+    <ellipse cx="0" cy="-55" rx="18" ry="23" fill="#818cf8" stroke="#4338ca" stroke-width="1" />
+    <line x1="-15" y1="-70" x2="15" y2="-40" stroke="#4338ca" stroke-width="1" />
+    <line x1="-15" y1="-40" x2="15" y2="-70" stroke="#4338ca" stroke-width="1" />
+    <line x1="-18" y1="-55" x2="18" y2="-55" stroke="#4338ca" stroke-width="1" />
+    <line x1="0" y1="-78" x2="0" y2="-32" stroke="#4338ca" stroke-width="1" />
+    
+    <!-- Sound waves animation -->
+    <path d="M-40,-55 Q-50,-75 -40,-95" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linecap="round" opacity="0.8">
+      <animate attributeName="opacity" values="0.8;1;0.8" dur="1.5s" repeatCount="indefinite" />
+    </path>
+    <path d="M-50,-55 Q-65,-85 -50,-115" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linecap="round" opacity="0.6">
+      <animate attributeName="opacity" values="0.6;0.9;0.6" dur="1.5s" repeatCount="indefinite" begin="0.2s" />
+    </path>
+    <path d="M40,-55 Q50,-75 40,-95" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linecap="round" opacity="0.8">
+      <animate attributeName="opacity" values="0.8;1;0.8" dur="1.5s" repeatCount="indefinite" />
+    </path>
+    <path d="M50,-55 Q65,-85 50,-115" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linecap="round" opacity="0.6">
+      <animate attributeName="opacity" values="0.6;0.9;0.6" dur="1.5s" repeatCount="indefinite" begin="0.2s" />
+    </path>
+  </g>
+  
+  <!-- Voice command visualization -->
+  <g transform="translate(440, 340)">
+    <rect x="0" y="0" width="200" height="50" rx="25" fill="rgba(79, 70, 229, 0.1)" stroke="#4f46e5" stroke-width="2" />
+    <circle cx="25" cy="25" r="15" fill="#4f46e5">
+      <animate attributeName="opacity" values="1;0.6;1" dur="1.5s" repeatCount="indefinite" />
+    </circle>
+    <text x="50" y="32" font-family="Arial" font-size="14" fill="#1e293b">Add meeting with marketing</text>
+  </g>
+  
+  <!-- Connection lines -->
+  <path d="M440,340 C420,330 420,300 400,290" fill="none" stroke="#4f46e5" stroke-width="1" stroke-dasharray="5,5" />
+  
+  <!-- Notification indicators -->
+  <circle cx="650" cy="140" r="10" fill="#ef4444" stroke="#white" stroke-width="1">
+    <animate attributeName="r" values="10;12;10" dur="2s" repeatCount="indefinite" />
+  </circle>
+  <text x="650" y="144" font-family="Arial" font-size="12" fill="white" text-anchor="middle" font-weight="bold">3</text>
+</svg>

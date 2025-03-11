@@ -3,19 +3,13 @@ import { useAuth } from '../../../context/AuthContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { MdDashboard } from "react-icons/md";
-import { FaUserGraduate } from "react-icons/fa";
-import { FaUserTie } from "react-icons/fa6";
-import { BsFillPatchQuestionFill } from "react-icons/bs";
-import { FaChartArea } from "react-icons/fa";
+import { FaUserGraduate, FaTasks } from "react-icons/fa";
+import { FaUsers } from "react-icons/fa";
+import { FaBarsProgress } from "react-icons/fa6";
 import { RiUserSettingsFill } from "react-icons/ri";
-import { PiBooksFill } from "react-icons/pi";
 import { PiPaperclipFill } from "react-icons/pi";
 import { TbLogout2 } from "react-icons/tb";
-import { PiExamFill } from "react-icons/pi";
-import { FaFilePen } from "react-icons/fa6";
-import { ImBooks } from "react-icons/im";
-import { IoIosNotifications } from "react-icons/io";
-import { BiSupport } from "react-icons/bi";
+import { HiBellAlert } from "react-icons/hi2";
 
 import {
     FaChevronDown,
@@ -32,145 +26,86 @@ const navigation = {
             icon: <MdDashboard />,
         },
         {
-            name: 'Students',
-            icon: <FaUserGraduate />,
+            name: 'Users Management',
+            icon: <FaUsers />,
             subMenu: [
-                { name: 'Student List', path: '/admin/dashboard/students/list' },
-                { name: 'Add Student', path: '/admin/dashboard/students/add' },
+                { name: 'View All Users', path: '/admin/dashboard/' },
+                { name: 'Add New User', path: '/admin/dashboard/' },
             ],
         },
         {
-            name: 'Instructors',
-            icon: <FaUserTie />,
+            name: 'Task Monitoring',
+            icon: <FaTasks />,
             subMenu: [
-                { name: 'Instructors List', path: '/admin/dashboard/Instructors/list' },
-                { name: 'Add Instructor', path: '/admin/dashboard/Instructors/add' },
+                { name: 'Task Analytics', path: '/admin/dashboard/' },
+                { name: 'User Task Logs', path: '/admin/dashboard/' },
+                { name: 'Productivity Reports', path: '/admin/dashboard/' },
             ],
         },
         {
-            name: 'Faculties & Modules',
-            icon: <PiBooksFill />,
-            subMenu: [
-                { name: 'Faculties', path: '/admin/dashboard/faculties' },
-                { name: 'Modules', path: '/admin/dashboard/modules' },
-            ],
-        },
-        {
-            name: 'Quiz Management',
+            name: 'System Settings',
             icon: <PiPaperclipFill />,
             subMenu: [
-                { name: 'Quiz List', path: '/admin/dashboard/quizzes' },
-                { name: 'Create Quiz', path: '/admin/dashboard/quiz/manage/add' },
+                { name: 'Task Categorization Rules', path: '/admin/dashboard/' },
+                { name: 'Voice-to-Text Configuration', path: '/admin/dashboard/' },
+                { name: 'Notification & Reminder Settings', path: '/admin/dashboard/' },
             ],
         },
-        {
-            name: 'Study Materials',
-            path: '/admin/dashboard/manage/study-materials',
-            icon: <ImBooks />,
-        },
-        // {
-        //     name: 'Analysis',
-        //     icon: <FaChartArea />,
-        //     subMenu: [
-        //         { name: 'Question Performance', path: '/admin/dashboard/quize/list' },
-        //         { name: 'Question Difficulty', path: '/admin/dashboard/quize/add' },
-        //         { name: 'Quiz Reports', path: '/admin/dashboard/quize/edit' },
-        //     ],
-        // },
         {
             name: 'Profile Setting',
             path: '/admin/dashboard/user/settings',
             icon: <RiUserSettingsFill />,
         },
     ],
-    instructor: [
+    user: [
         {
             name: 'Dashboard',
-            path: '/instructor/dashboard',
+            path: '/user/dashboard',
             icon: <MdDashboard />,
         },
         {
-            name: 'Student',
+            name: 'My Tasks',
             icon: <FaUserGraduate />,
             subMenu: [
-                { name: 'Student List', path: '/instructor/dashboard/students/list' },
-                { name: 'Add Student', path: '/instructor/dashboard/students/add' },
+                { name: 'Add New Task', path: '/user/dashboard/' },
+                { name: 'View All Tasks', path: '/user/dashboard//' },
             ],
         },
         {
-            name: 'Quiz Management',
-            icon: <PiPaperclipFill />,
+            name: 'Reminders & Alerts',
+            icon: <HiBellAlert />,
             subMenu: [
-                { name: 'Quiz List', path: '/admin/dashboard/quizzes' },
-                { name: 'Create Quiz', path: '/admin/dashboard/quiz/manage/add' },
+                { name: 'Upcoming Deadlines', path: '/user/dashboard/' },
+                { name: 'Smart Categorization', path: '/user/dashboard/' },
+                { name: 'Notification Settings', path: '/user/dashboard/' },
             ],
         },
         {
-            name: 'Study Materials',
-            path: '/instructor/dashboard/manage/study-materials',
-            icon: <ImBooks />,
+            name: 'Progress & Insights',
+            icon: <FaBarsProgress />,
+            subMenu: [
+                { name: 'Productivity Stats', path: '/user/dashboard/' },
+                { name: 'Time Spent on Tasks', path: '/user/dashboard/' },
+                { name: 'Task Completion Rate', path: '/user/dashboard/' },
+            ],
         },
-        // {
-        //     name: 'Analysis',
-        //     icon: <FaChartArea />,
-        //     subMenu: [
-        //         { name: 'Question Performance', path: '/instructor/dashboard/quize/list' },
-        //         { name: 'Question Difficulty', path: '/instructor/dashboard/quize/add' },
-        //         { name: 'Quiz Reports', path: '/instructor/dashboard/quize/edit' },
-        //     ],
-        // },
         {
             name: 'Profile Setting',
-            path: '/instructor/dashboard/settings',
-            icon: <RiUserSettingsFill />,
-        },
-    ],
-    student: [
-        {
-            name: 'Dashboard',
-            path: '/student/dashboard',
-            icon: <MdDashboard />,
-        },
-        {
-            name: 'Quizzes',
-            path: '/student/dashboard/exam/select',
-            icon: <FaFilePen />,
-        },
-        {
-            name: 'Results',
-            path: '/student/dashboard/results',
-            icon: <PiExamFill />,
-        },
-        {
-            name: 'Study Materials',
-            path: '/student/dashboard/study-materials',
-            icon: <ImBooks />,
-        },
-        {
-            name: 'Notifications',
-            path: '/student/dashboard/notifications',
-            icon: <IoIosNotifications />,
-        },
-        {
-            name: 'Support',
-            path: '/student/dashboard/support',
-            icon: <BiSupport />,
-        },
-        {
-            name: 'Settings',
-            path: '/student/dashboard/settings',
+            path: '/user/dashboard/settings',
             icon: <RiUserSettingsFill />,
         },
     ],
 };
 
 const Sidebar = ({ isSidebarOpen }) => {
-    const { currentUser, additionalData, logout } = useAuth();
+    const { currentUser, logout } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
     const [activeSubmenu, setActiveSubmenu] = useState('');
 
+    // const currentUser = "user";
     const activeMenu = navigation[currentUser?.role] || [];
+    // const activeMenu = navigation[currentUser] || [];
 
     const handleLogout = () => {
         logout();
@@ -194,21 +129,6 @@ const Sidebar = ({ isSidebarOpen }) => {
         <aside className={`fixed top-16 bottom-0 left-0 z-10 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-200 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 dark:bg-gray-800 dark:border-gray-700'
             }`}>
             <div className="flex flex-col h-full">
-                {/* User Profile Section */}
-                <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                    <div className="flex flex-col items-center justify-center space-x-3">
-                        <img
-                            src={`${API_URL}/${currentUser?.avatar}`}
-                            alt="Profile"
-                            className="w-20 h-20 rounded-full object-cover"
-                        />
-                        <div className='text-center mt-3'>
-                            <h3 className="text-sm font-semibold dark:text-white">{additionalData?.studentId || additionalData?.employeeId}</h3>
-                            <h3 className="text-sm font-semibold dark:text-white">{currentUser?.firstName} {currentUser?.lastName}</h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{currentUser?.role}</p>
-                        </div>
-                    </div>
-                </div>
                 {/* Navigation */}
                 <nav className="flex-1 overflow-y-auto p-4">
                     <ul className="space-y-2 font-medium text-gray-700 dark:text-gray-200">

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { IoIosMenu, IoMdClose } from 'react-icons/io';
-
 import Logo from '../assets/images/logo.png';
-
 import Switcher from './ui/Switcher';
 
 const navigation = [
@@ -34,7 +32,7 @@ const Header = () => {
     }, []);
 
     return (
-        <div className="bg-white mx-auto px-4 sm:px-6 lg:px-8 lg:py-10 dark:bg-slate-800">
+        <div className="bg-white mx-auto px-4 sm:px-6 lg:px-8 lg:py-8 dark:bg-slate-800">
             <header
                 className={`${isScrolled ? 'fixed top-0 left-0 w-full z-50 bg-white shadow-lg dark:bg-slate-800' : 'absolute inset-x-0 top-0 z-50'
                     } transition-all duration-300 ease-in-out`}
@@ -57,11 +55,11 @@ const Header = () => {
                         <Switcher />
                         <button
                             type="button"
-                            className="-m-2.5 ms-1 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
+                            className="-m-2.5 ms-1 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700 dark:text-white"
                             onClick={() => setMobileMenuOpen(true)}
                         >
                             <span className="sr-only">Open main menu</span>
-                            <IoIosMenu className="h-6 w-6 dark:text-white" aria-hidden="true" />
+                            <IoIosMenu className="h-6 w-6" aria-hidden="true" />
                         </button>
                     </div>
 
@@ -71,24 +69,28 @@ const Header = () => {
                             <Link
                                 key={item.name}
                                 to={item.href}
-                                className="text-sm font-semibold leading-6 text-gray-900 dark:text-white"
+                                className="text-sm font-semibold leading-6 text-gray-900 hover:text-indigo-600 dark:text-white dark:hover:text-indigo-400 transition-colors duration-200"
                             >
                                 {item.name}
                             </Link>
                         ))}
                     </div>
 
-                    {/* Login Button */}
-                    <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-                        <div className="flex items-center pr-3">
-                            <Switcher />
-                        </div>
-                        <button link="/login">
-                            Login
-                        </button>
-                        <button link="/register">
+                    {/* Login and Register Buttons */}
+                    <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center lg:gap-4">
+                        <Switcher />
+                        <Link
+                            to="/login"
+                            className="text-sm font-semibold leading-6 text-gray-900 dark:text-white px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+                        >
+                            Log in
+                        </Link>
+                        <Link
+                            to="/register"
+                            className="text-sm font-semibold leading-6 text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg transition-colors duration-200"
+                        >
                             Register
-                        </button>
+                        </Link>
                     </div>
                 </nav>
 
@@ -127,7 +129,7 @@ const Header = () => {
                                         <Link
                                             key={item.name}
                                             to={item.href}
-                                            className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-gray-600"
+                                            className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-gray-600 transition-colors duration-200"
                                             onClick={() => setMobileMenuOpen(false)}
                                         >
                                             {item.name}
@@ -137,10 +139,17 @@ const Header = () => {
                                 <div className="py-6">
                                     <Link
                                         to="/login"
-                                        className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-gray-600"
+                                        className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-gray-600 transition-colors duration-200"
                                         onClick={() => setMobileMenuOpen(false)}
                                     >
                                         Log in
+                                    </Link>
+                                    <Link
+                                        to="/register"
+                                        className="-mx-3 block rounded-lg px-3 py-2.5 mt-2 text-base font-semibold leading-7 text-white bg-indigo-600 hover:bg-indigo-700 transition-colors duration-200"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                    >
+                                        Register
                                     </Link>
                                 </div>
                             </div>

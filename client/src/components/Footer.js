@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
 
-import Logo from '../assets/images/logo-2.png'
+import Logo from '../assets/images/logo.png'
 
 import { FaFacebookF } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
@@ -22,10 +22,6 @@ const Footer = () => {
                                 />
                             </Link>
                             <p className='text-customGray dark:text-gray-400 mt-4'>Lorem cing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniamquis.</p>
-                            <div className='flex text-gray-400 mt-3 gap-3'>
-                                <FaFacebookF />
-                                <FaXTwitter />
-                            </div>
                         </div>
                         <div>
                             <h2 class="mb-6 text-sm font-semibold text-customDark uppercase dark:text-white">Help center</h2>
@@ -86,14 +82,10 @@ const Footer = () => {
                             <Link to="/" className='hover:underline'>
                                 Privacy Policy
                             </Link>
-                            <Link to="https://my-portfolio-five-ecru-46.vercel.app/" className='hover:underline'>
-                                EM
-                            </Link>
                         </div>
                     </div>
                 </div>
             </footer >
-
         </>
     )
 }

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 
-import Logo from '../../../assets/images/logo-2.png';
+import Logo from '../../../assets/images/logo.png';
 import Switcher from '../../ui/Switcher';
 // import Notification from '../../Dashboard/Notification';
 // import ToggleSidebarButton from '../Sidebar/ToggleSidebarButton';
@@ -120,10 +120,6 @@ const Navbar = ({ isSidebarOpen, toggleSidebar }) => {
                         {isOpened && (
                             <div className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabIndex="-1">
                                 <div role="none">
-                                    <div className="px-4 py-3 text-sm text-gray-900 dark:text-white dark:bg-gray-800">
-                                        <div className="font-medium">{currentUser?.firstName} {currentUser?.lastName}</div>
-                                        <div className="truncate">{currentUser?.email}</div>
-                                    </div>
                                     {dropdownMenu.map((item, index) => (
                                         <Link
                                             key={index}

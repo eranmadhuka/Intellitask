@@ -1,62 +1,140 @@
-import React from 'react'
-
-import { MdEmail } from "react-icons/md";
-import { FaPhone } from "react-icons/fa";
+import React from 'react';
+import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaClock } from 'react-icons/fa';
 
 const Contact = () => {
     return (
         <>
-            <div className='dark:bg-slate-800'>
-                <div className='relative isolate mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20'>
-                    <div className='mx-auto py-10 sm:py-20 lg:py-0 flex flex-col lg:flex-row items-center justify-center'>
-                        <div className='lg:w-1/3 lg:pe-5'>
-                            <div>
-                                <h2>CONTACT US</h2>
-                                <p>Let's talk about your problem</p>
-                            </div>
-                            <p className='text-customGray text-sm mt-3 dark:text-gray-400'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Iure, corporis! Adipisci at consequatur officiis neque earum dignissimos voluptatum ipsum repudiandae alias</p>
-                            <div className='flex items-center mt-3 dark:text-gray-400'>
-                                <MdEmail className='text-customGray me-3' />
-                                <a href='#' className='hover:underline text-customGray dark:text-gray-400'>example@email.com</a>
-                            </div>
-                            <div className='flex items-center mt-3 dark:text-gray-400'>
-                                <FaPhone className='text-customGray me-3' />
-                                <a href='#' className='hover:underline text-customGray dark:text-gray-400'>example@email.com</a>
-                            </div>
+            {/* Hero Section */}
+            <section className="bg-gradient-to-r from-blue-600 to-indigo-800 text-white dark:from-gray-800 dark:to-gray-900">
+                <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
+                    <div className="text-center">
+                        <h1 className="text-4xl md:text-5xl font-bold mb-6">Contact Us</h1>
+                        <p className="text-xl max-w-2xl mx-auto dark:text-gray-300">
+                            We're here to help! Reach out to us for any questions, feedback, or support.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            {/* Contact Form and Details Section */}
+            <section className="py-20 bg-white dark:bg-gray-900">
+                <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        {/* Contact Form */}
+                        <div className="bg-white p-8 rounded-xl shadow-md dark:bg-gray-800">
+                            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Send Us a Message</h2>
+                            <form>
+                                <div className="mb-6">
+                                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Your Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="name"
+                                        name="name"
+                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                        placeholder="John Doe"
+                                        required
+                                    />
+                                </div>
+                                <div className="mb-6">
+                                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Your Email
+                                    </label>
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        name="email"
+                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                        placeholder="johndoe@example.com"
+                                        required
+                                    />
+                                </div>
+                                <div className="mb-6">
+                                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Your Message
+                                    </label>
+                                    <textarea
+                                        id="message"
+                                        name="message"
+                                        rows="5"
+                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                        placeholder="How can we help you?"
+                                        required
+                                    ></textarea>
+                                </div>
+                                <button
+                                    type="submit"
+                                    className="w-full bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-indigo-700 transition duration-300"
+                                >
+                                    Send Message
+                                </button>
+                            </form>
                         </div>
-                        <div className='lg:w-2/3 md:w-full md:mt5 sm:w-full sm:mt-5'>
-                            <div class="py-8 px-4 lg:p-12 bg-white rounded-lg shadow-md dark:border dark:bg-gray-800 dark:border-gray-700 mx-auto max-w-screen-md">
-                                <form action="#" class="space-y-8">
-                                    <h2 className='text-3xl font-semibold text-customDark dark:text-white'>Still need help?</h2>
-                                    <div>
-                                        <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Your email</label>
-                                        <input type="email" name="email" id="email"
-                                            className='bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-customBlue focus:border-customBlue block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-                                            placeholder="name@company.com"
-                                            required
-                                        />
+
+                        {/* Contact Details */}
+                        <div className="bg-white p-8 rounded-xl shadow-md dark:bg-gray-800">
+                            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Contact Information</h2>
+                            <div className="space-y-6">
+                                <div className="flex items-start">
+                                    <div className="bg-blue-100 p-4 rounded-full mr-6 flex-shrink-0 dark:bg-blue-200">
+                                        <FaMapMarkerAlt className="text-blue-600 text-2xl dark:text-blue-700" />
                                     </div>
                                     <div>
-                                        <label for="subject" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Subject</label>
-                                        <input type="text" name="subject" id="email"
-                                            className='bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-customBlue focus:border-customBlue block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-                                            placeholder="Let us know how we can help you"
-                                            required
-                                        />
+                                        <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">Our Office</h3>
+                                        <p className="text-gray-600 dark:text-gray-300">
+                                            123 Tech Street, Suite 456<br />
+                                            Innovation City, IC 78910
+                                        </p>
                                     </div>
-                                    <div class="sm:col-span-2">
-                                        <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Your message</label>
-                                        <textarea id="message" rows="6" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg shadow-sm border border-gray-300 focus:ring-customBlue focus:border-customBlue0 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-customBlue dark:focus:border-customBlue" placeholder="Leave a comment..."></textarea>
+                                </div>
+
+                                <div className="flex items-start">
+                                    <div className="bg-indigo-100 p-4 rounded-full mr-6 flex-shrink-0 dark:bg-indigo-200">
+                                        <FaPhone className="text-indigo-600 text-2xl dark:text-indigo-700" />
                                     </div>
-                                    <button type="submit" class="py-3 px-5 text-sm font-medium text-center text-white rounded-lg bg-customBlue sm:w-fit hover:bg-indigo-800 focus:ring-4 focus:outline-none focus:ring-customBlue">Send message</button>
-                                </form>
+                                    <div>
+                                        <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">Phone</h3>
+                                        <p className="text-gray-600 dark:text-gray-300">
+                                            +1 (123) 456-7890<br />
+                                            Mon - Fri, 9:00 AM - 6:00 PM
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start">
+                                    <div className="bg-purple-100 p-4 rounded-full mr-6 flex-shrink-0 dark:bg-purple-200">
+                                        <FaEnvelope className="text-purple-600 text-2xl dark:text-purple-700" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">Email</h3>
+                                        <p className="text-gray-600 dark:text-gray-300">
+                                            support@intellitask.com<br />
+                                            We respond within 24 hours
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start">
+                                    <div className="bg-green-100 p-4 rounded-full mr-6 flex-shrink-0 dark:bg-green-200">
+                                        <FaClock className="text-green-600 text-2xl dark:text-green-700" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">Working Hours</h3>
+                                        <p className="text-gray-600 dark:text-gray-300">
+                                            Mon - Fri: 9:00 AM - 6:00 PM<br />
+                                            Sat - Sun: Closed
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </>
-    )
-}
+            </section>
 
-export default Contact
+        </>
+    );
+};
+
+export default Contact;
