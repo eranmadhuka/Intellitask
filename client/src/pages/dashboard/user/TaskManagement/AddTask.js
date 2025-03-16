@@ -6,6 +6,7 @@ const AddTask = ({ onAddTask }) => {
     description: "",
     priority: "Medium",
     dueDate: "",
+    status: "To Do",
   });
   const [error, setError] = useState("");
 
@@ -13,15 +14,39 @@ const AddTask = ({ onAddTask }) => {
     setTask({ ...task, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!task.title || !task.description || !task.dueDate) {
-      setError("All fields are required");
-      return;
+  const validateForm = () => {
+    if (!task.title.trim()) {
+      setError("Title is required.");
+      return false;
+    }
+    if (!task.description.trim()) {
+      setError("Description is required.");
+      return false;
+    }
+    if (!task.dueDate) {
+      setError("Due Date is required.");
+      return false;
+    }
+    const currentDate = new Date().toISOString().split("T")[0];
+    if (task.dueDate < currentDate) {
+      setError("Due Date cannot be in the past.");
+      return false;
     }
     setError("");
+    return true;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
     onAddTask(task);
-    setTask({ title: "", description: "", priority: "Medium", dueDate: "" });
+    setTask({
+      title: "",
+      description: "",
+      priority: "Medium",
+      dueDate: "",
+      status: "To Do",
+    });
   };
 
   return (
@@ -36,7 +61,6 @@ const AddTask = ({ onAddTask }) => {
             name="title"
             value={task.title}
             onChange={handleChange}
-            required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -46,7 +70,6 @@ const AddTask = ({ onAddTask }) => {
             name="description"
             value={task.description}
             onChange={handleChange}
-            required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           ></textarea>
         </div>
@@ -70,9 +93,21 @@ const AddTask = ({ onAddTask }) => {
             name="dueDate"
             value={task.dueDate}
             onChange={handleChange}
-            required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+        </div>
+        <div>
+          <label className="block text-gray-700">Status:</label>
+          <select
+            name="status"
+            value={task.status}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="To Do">To Do</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
         </div>
         <button
           type="submit"

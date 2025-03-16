@@ -51,7 +51,6 @@ function PublicLayout() {
         {/* <Route path="/services" element={<Services />} /> */}
         <Route path="/contact" element={<Contact />} />
         <Route path="*" element={<NotFound />} />
-        <Route path="/addtask" element={<AddTask />} />
       </Routes>
       <Footer />
     </>
@@ -70,6 +69,7 @@ function UserDashboardLayout() {
   return (
     <Routes>
       <Route index element={<UserDashboard />} />
+      <Route path="/addtask" element={<AddTask />} />
     </Routes>
   );
 }
