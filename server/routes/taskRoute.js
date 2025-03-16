@@ -1,10 +1,11 @@
+// routes/task.js
 const express = require("express");
 const Task = require("../models/Task");
-
+const auth = require("../middleware/authMiddleware");
 const router = express.Router();
 
-// Add a new task
-router.post("/add", async (req, res) => {
+// Add a new task (protected route)
+router.post("/add", auth, async (req, res) => {
     try {
         const { title, description, priority, dueDate } = req.body;
 
@@ -13,13 +14,14 @@ router.post("/add", async (req, res) => {
             return res.status(400).json({ error: "Title, description, and due date are required" });
         }
 
-        // Create a new task
+        // Create a new task with the user's ID
         const newTask = new Task({
             title,
             description,
-            priority: priority || "Medium", // Default to "Medium" if not provided
+            priority: priority || "Medium",
             dueDate,
-            status: "To do" // Default status
+            status: "To do",
+            userId: req.user.id,
         });
 
         // Save the task to the database
@@ -31,7 +33,7 @@ router.post("/add", async (req, res) => {
         console.error("Error adding task:", error);
         res.status(500).json({
             error: "Error adding task",
-            details: error.message
+            details: error.message,
         });
     }
 });

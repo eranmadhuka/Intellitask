@@ -9,16 +9,27 @@ const router = express.Router();
 // REGISTER (Signup)
 router.post("/register", async (req, res) => {
     try {
-        const { firstName, lastName, username, email, password, phone, gender } = req.body;
+        const { firstName, lastName, username, email, password, phone, gender, role } = req.body;
+
+        // Validate required fields
+        if (!firstName || !lastName || !username || !email || !password) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
 
         // Check if user already exists
         const existingUser = await User.findOne({
             $or: [{ email }, { username }]
         });
 
-        if (existingUser) return res.status(400).json({
-            message: "User already exists with this email or username"
-        });
+        if (existingUser) {
+            return res.status(400).json({
+                message: "User already exists with this email or username"
+            });
+        }
+
+        // Hash the password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
         // Create new user with the additional fields
         const newUser = new User({
@@ -26,16 +37,17 @@ router.post("/register", async (req, res) => {
             lastName,
             username,
             email,
-            password,
+            password: hashedPassword, // Save the hashed password
             phone,
             gender,
-            role: req.body.role || "user" // Default to "user" if not specified
+            role: role || "user" // Default to "user" if not specified
         });
 
         await newUser.save();
 
         res.status(201).json({ message: "User registered successfully" });
     } catch (error) {
+        console.error("Error during registration:", error);
         res.status(500).json({ message: "Server error", error: error.message });
     }
 });
@@ -58,9 +70,9 @@ router.post("/login", async (req, res) => {
             { expiresIn: "7d" }
         );
 
-        // Return user data with the additional fields
+        // Return user data and token
         res.json({
-            token,
+            token, // Ensure the token is included in the response
             user: {
                 id: user._id,
                 firstName: user.firstName,
@@ -76,9 +88,12 @@ router.post("/login", async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 });
+
 // PROTECTED ROUTE: Only Admins Can Access
 router.get("/admin", authMiddleware, (req, res) => {
-    if (req.user.role !== "admin") return res.status(403).json({ message: "Access denied" });
+    if (req.user.role !== "admin") {
+        return res.status(403).json({ message: "Access denied" });
+    }
     res.json({ message: "Welcome Admin!" });
 });
 

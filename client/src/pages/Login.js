@@ -30,22 +30,23 @@ const Login = () => {
                 password,
             });
 
-            const { user: userData, token, additionalData } = data;
+            const { token, user: userData } = data;
 
             if (!userData?.role) {
                 throw new Error('Invalid user data received');
             }
 
+            // Save user data and token to localStorage
             localStorage.setItem('user', JSON.stringify(userData));
             localStorage.setItem('token', token);
-            if (additionalData) {
-                localStorage.setItem('additionalData', JSON.stringify(additionalData));
-            }
 
-            login(userData, additionalData);
+            // Call the login function from AuthContext
+            login({ ...userData, token });
 
             toast.success('Login successful! Redirecting...');
+            navigate(`/${userData.role}/dashboard`, { replace: true });
         } catch (error) {
+            console.error("Login error:", error);
             toast.error(error.response?.data?.message || 'Login failed');
         } finally {
             setLoading(false);

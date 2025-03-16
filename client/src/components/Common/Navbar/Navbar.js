@@ -4,15 +4,11 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import Logo from '../../../assets/images/logo.png';
 import Switcher from '../../ui/Switcher';
-// import Notification from '../../Dashboard/Notification';
-// import ToggleSidebarButton from '../Sidebar/ToggleSidebarButton';
-
 import { FaBars, FaUser } from "react-icons/fa";
 import { IoLogOut } from "react-icons/io5";
 import { IoSettings } from "react-icons/io5";
 import { RiLockPasswordFill } from "react-icons/ri";
 const API_URL = process.env.REACT_APP_API_URL;
-
 
 const dropdownMenu = [
     {
@@ -38,7 +34,7 @@ const dropdownMenu = [
 ];
 
 const Navbar = ({ isSidebarOpen, toggleSidebar }) => {
-    const { currentUser, additionalData, logout } = useAuth();
+    const { currentUser, logout } = useAuth();
     const [isOpened, setIsOpened] = useState(false);
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
