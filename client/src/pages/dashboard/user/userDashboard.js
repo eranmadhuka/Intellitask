@@ -12,6 +12,9 @@ const InstructorDashboard = () => {
         <p className="text-customGray text-sm">
           Welcome to Learning Management Dashboard.
         </p>
+
+
+
       </div>
     </DashboardLayout>
   );
