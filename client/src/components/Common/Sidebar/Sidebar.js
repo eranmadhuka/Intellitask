@@ -67,7 +67,7 @@ const navigation = {
             name: 'My Tasks',
             icon: <FaUserGraduate />,
             subMenu: [
-                { name: 'Add New Task', path: '/user/dashboard/' },
+                { name: 'Add New Task', path: '/user/dashboard/addtask' },
                 { name: 'View All Tasks', path: '/user/dashboard//' },
             ],
         },

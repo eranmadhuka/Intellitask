@@ -1,19 +1,23 @@
-import React from 'react'
+import React from "react";
 
-import DashboardLayout from '../../../components/Common/Layout/DashboardLayout'
+import DashboardLayout from "../../../components/Common/Layout/DashboardLayout";
 
 const InstructorDashboard = () => {
-    return (
-        <DashboardLayout>
-            <div>
+  return (
+    <DashboardLayout>
+      <div>
+        <h1 className="text-customDark font-semibold text-2xl dark:text-gray-300 mt-5">
+          Dashboard
+        </h1>
+        <p className="text-customGray text-sm">
+          Welcome to Learning Management Dashboard.
+        </p>
 
 
-                <h1 className='text-customDark font-semibold text-2xl dark:text-gray-300 mt-5'>Dashboard</h1>
-                <p className='text-customGray text-sm'>Welcome to Learning Management Dashboard.</p>
 
-            </div>
-        </DashboardLayout>
-    )
-}
+      </div>
+    </DashboardLayout>
+  );
+};
 
-export default InstructorDashboard
+export default InstructorDashboard;
