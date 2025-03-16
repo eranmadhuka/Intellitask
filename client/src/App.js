@@ -17,6 +17,7 @@ import Register from "./pages/Register";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import AddTask from "./pages/dashboard/user/TaskManagement/AddTask";
+import MyTasks from "./pages/dashboard/user/TaskManagement/MyTasks";
 
 // Admin Dashboard components
 import Dashboard from "./pages/dashboard/admin/Dashboard";
@@ -70,6 +71,7 @@ function UserDashboardLayout() {
     <Routes>
       <Route index element={<UserDashboard />} />
       <Route path="/addtask" element={<AddTask />} />
+      <Route path="/mytasks" element={<MyTasks />} />
     </Routes>
   );
 }

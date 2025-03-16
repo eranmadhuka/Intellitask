@@ -28,6 +28,7 @@ const navigation = {
       subMenu: [
         { name: "View All Users", path: "/admin/dashboard/" },
         { name: "Add task", path: "/user/dashboard/addtask" },
+        { name: "My tasks", path: "/user/dashboard/mytasks" },
       ],
     },
     {
