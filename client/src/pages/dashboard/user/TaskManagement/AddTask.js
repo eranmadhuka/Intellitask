@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { FaMicrophone, FaMicrophoneSlash } from "react-icons/fa";
 import DashboardLayout from "../../../../components/Common/Layout/DashboardLayout";
-import axios from 'axios';
+import axios from "axios";
+import { useAuth } from "../../../../context/AuthContext";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 const AddTask = ({ onAddTask }) => {
+  const { currentUser, loading } = useAuth(); // Get loading state
   const [task, setTask] = useState({
     title: "",
     description: "",
@@ -49,22 +51,54 @@ const AddTask = ({ onAddTask }) => {
       return;
     }
 
+    // Check if the user is logged in
+    if (loading) {
+      setError("Loading user data...");
+      return;
+    }
+
+    if (!currentUser || !currentUser.token) {
+      setError("You must be logged in to add a task.");
+      return;
+    }
+
     try {
-      const response = await axios.post(`${API_URL}/api/tasks/add`, task);
+      // Include the user's ID in the task data
+      const taskData = { ...task, userId: currentUser.id };
+
+      // Debugging: Log the request data and headers
+      console.log("Task Data:", taskData);
+      console.log("Authorization Header:", `Bearer ${currentUser.token}`);
+
+      // Send the request with the token in the headers
+      const response = await axios.post(`${API_URL}/api/tasks/add`, taskData, {
+        headers: { Authorization: `Bearer ${currentUser.token}` },
+      });
+
       setError("");
+      if (typeof onAddTask === "function") {
+        onAddTask(response.data);
+      }
       setTask({
         title: "",
         description: "",
         priority: "Medium",
         dueDate: "",
       });
-      // Optionally, you can display a success message or redirect the user
       alert("Task added successfully!");
     } catch (error) {
-      setError(error.response?.data?.message || "Failed to add task");
+      if (error.response?.status === 401) {
+        setError("Unauthorized. Please log in again.");
+      } else {
+        setError(error.response?.data?.message || "Failed to add task");
+      }
       console.error("Error adding task:", error);
     }
   };
+
+  if (loading) {
+    return <div>Loading...</div>; // Show a loading spinner or message
+  }
 
   return (
     <DashboardLayout>
@@ -74,8 +108,8 @@ const AddTask = ({ onAddTask }) => {
       <p className="text-customGray text-sm dark:text-gray-400">
         Manage your tasks efficiently with priority levels.
       </p>
-
-      <div className="max-w-md mx-auto bg-white dark:bg-gray-800 p-6 mt-10 rounded-lg shadow-md">
+      <h3>{currentUser?._id}</h3>
+      <div className="max-w-md mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-4 dark:text-gray-300">Add Task</h2>
         {error && <p className="text-red-500 mb-2">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">
