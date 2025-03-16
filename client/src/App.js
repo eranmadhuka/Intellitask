@@ -6,6 +6,14 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+} from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
 // Import necessary components
 import Header from "./components/Header";
@@ -34,6 +42,7 @@ function PrivateRoute({ children }) {
   }
 
   if (!currentUser) {
+    return navigate("/login", { replace: true });
     return navigate("/login", { replace: true });
   }
 
@@ -110,3 +119,4 @@ function App() {
 }
 
 export default App;
+
