@@ -16,13 +16,19 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
-import AddTask from "./pages/dashboard/user/TaskManagement/AddTask";
 
 // Admin Dashboard components
 import Dashboard from "./pages/dashboard/admin/Dashboard";
 
-// Student Dashboard components
+// User Dashboard components
 import UserDashboard from "./pages/dashboard/user/userDashboard";
+import AddTask from "./pages/dashboard/user/TaskManagement/AddTask";
+import AddReminder from "./pages/dashboard/user/ReminderManagement/AddReminder";
+import MyReminders from "./pages/dashboard/user/ReminderManagement/MyReminders";
+import Notifications from "./pages/dashboard/user/ReminderManagement/Notifications";
+import Settings from "./pages/dashboard/user/ReminderManagement/Settings";
+import ReminderProvider from "./pages/dashboard/user/ReminderManagement/RNContext/ReminderContext";
+import NotificationProvider from "./pages/dashboard/user/ReminderManagement/RNContext/NotificationContext";
 
 function PrivateRoute({ children }) {
   const navigate = useNavigate();
@@ -51,7 +57,6 @@ function PublicLayout() {
         {/* <Route path="/services" element={<Services />} /> */}
         <Route path="/contact" element={<Contact />} />
         <Route path="*" element={<NotFound />} />
-
       </Routes>
       <Footer />
     </>
@@ -71,6 +76,10 @@ function UserDashboardLayout() {
     <Routes>
       <Route index element={<UserDashboard />} />
       <Route path="/addtask" element={<AddTask />} />
+      <Route path="/addReminder" element={<AddReminder />} />
+      <Route path="/myReminders" element={<MyReminders />} />
+      <Route path="/settings" element={<Settings />} />
+      <Route path="/notifications" element={<Notifications />} />
     </Routes>
   );
 }
@@ -98,7 +107,11 @@ function App() {
             path="/user/dashboard/*"
             element={
               <PrivateRoute>
-                <UserDashboardLayout />
+                <ReminderProvider>
+                  <NotificationProvider>
+                    <UserDashboardLayout />
+                  </NotificationProvider>
+                </ReminderProvider>
               </PrivateRoute>
             }
           />
