@@ -1,11 +1,7 @@
-import React from 'react'
+import React from "react";
 
 const Notifications = () => {
-    return (
-        <div>
+  return <div></div>;
+};
 
-        </div>
-    )
-}
-
-export default Notifications
+export default Notifications;
