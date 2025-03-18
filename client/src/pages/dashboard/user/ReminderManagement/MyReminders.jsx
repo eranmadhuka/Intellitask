@@ -1,7 +1,144 @@
-import React from "react";
+import React, { useState } from "react";
+import { PlusIcon, FilterIcon, CheckSquareIcon, TagIcon } from "lucide-react";
+import { useReminders } from "./RNContext/ReminderContext";
+import ReminderCard from "./RNComponents/ReminderCard";
+import ReminderForm from "./RNComponents/ReminderForm";
+import DashboardLayout from "../../../../components/Common/Layout/DashboardLayout";
 
 const MyReminders = () => {
-  return <div></div>;
+  const { reminders } = useReminders();
+  const [showReminderForm, setShowReminderForm] = useState(false);
+  const [editingId, setEditingId] = useState(undefined);
+  const [sortBy, setSortBy] = useState("date-asc");
+  const [filterBy, setFilterBy] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedTag, setSelectedTag] = useState(null);
+
+  const handleEditReminder = (id) => {
+    setEditingId(id);
+    setShowReminderForm(true);
+  };
+
+  const closeForm = () => {
+    setShowReminderForm(false);
+    setEditingId(undefined);
+  };
+
+  const allTags = Array.from(
+    new Set(reminders.flatMap((reminder) => reminder.tags))
+  ).sort();
+
+  const filteredReminders = reminders.filter((reminder) => {
+    const matchesSearch =
+      searchTerm === "" ||
+      reminder.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      reminder.description.toLowerCase().includes(searchTerm.toLowerCase());
+
+    let matchesFilter = true;
+    if (filterBy === "completed") {
+      matchesFilter = reminder.completed;
+    } else if (filterBy === "active") {
+      matchesFilter = !reminder.completed;
+    } else if (["high", "medium", "low"].includes(filterBy)) {
+      matchesFilter = reminder.priority === filterBy;
+    }
+
+    const matchesTag = !selectedTag || reminder.tags.includes(selectedTag);
+    return matchesSearch && matchesFilter && matchesTag;
+  });
+
+  const sortedReminders = [...filteredReminders].sort((a, b) => {
+    switch (sortBy) {
+      case "date-asc":
+        return (
+          new Date(a.date + "T" + a.time) - new Date(b.date + "T" + b.time)
+        );
+      case "date-desc":
+        return (
+          new Date(b.date + "T" + b.time) - new Date(a.date + "T" + a.time)
+        );
+      case "priority":
+        return (
+          { high: 0, medium: 1, low: 2 }[a.priority] -
+          { high: 0, medium: 1, low: 2 }[b.priority]
+        );
+      case "title":
+        return a.title.localeCompare(b.title);
+      default:
+        return 0;
+    }
+  });
+
+  return (
+    <div>
+      <DashboardLayout>
+        <div className="max-w-5xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+            <h1 className="text-2xl font-bold text-gray-800">Reminders</h1>
+            <button
+              onClick={() => setShowReminderForm(true)}
+              className="mt-4 md:mt-0 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              <PlusIcon className="w-4 h-4 mr-2" /> New Reminder
+            </button>
+          </div>
+
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
+            <input
+              type="text"
+              placeholder="Search reminders..."
+              className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-md"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <select
+              value={filterBy}
+              onChange={(e) => setFilterBy(e.target.value)}
+            >
+              <option value="all">All</option>
+              <option value="active">Active</option>
+              <option value="completed">Completed</option>
+              <option value="high">High Priority</option>
+              <option value="medium">Medium Priority</option>
+              <option value="low">Low Priority</option>
+            </select>
+          </div>
+
+          <div className="space-y-4">
+            {sortedReminders.length > 0 ? (
+              sortedReminders.map((reminder) => (
+                <ReminderCard
+                  key={reminder.id}
+                  reminder={reminder}
+                  onEdit={handleEditReminder}
+                />
+              ))
+            ) : (
+              <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+                <CheckSquareIcon className="w-8 h-8 text-gray-400" />
+                <h3 className="text-lg font-medium text-gray-900">
+                  No reminders found
+                </h3>
+                <p className="mt-1 text-gray-500">
+                  Try changing your filters or search term
+                </p>
+                <button
+                  onClick={() => setShowReminderForm(true)}
+                  className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                >
+                  <PlusIcon className="w-4 h-4 mr-2" /> New Reminder
+                </button>
+              </div>
+            )}
+          </div>
+
+          {showReminderForm && (
+            <ReminderForm editingId={editingId} onClose={closeForm} />
+          )}
+        </div>
+      </DashboardLayout>
+    </div>
+  );
 };
 
 export default MyReminders;

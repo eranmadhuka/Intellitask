@@ -25,8 +25,10 @@ import UserDashboard from "./pages/dashboard/user/userDashboard";
 import AddTask from "./pages/dashboard/user/TaskManagement/AddTask";
 import AddReminder from "./pages/dashboard/user/ReminderManagement/AddReminder";
 import MyReminders from "./pages/dashboard/user/ReminderManagement/MyReminders";
-import RemindersHistory from "./pages/dashboard/user/ReminderManagement/RemindersHistory";
 import Notifications from "./pages/dashboard/user/ReminderManagement/Notifications";
+import Settings from "./pages/dashboard/user/ReminderManagement/Settings";
+import ReminderProvider from "./pages/dashboard/user/ReminderManagement/RNContext/ReminderContext";
+import NotificationProvider from "./pages/dashboard/user/ReminderManagement/RNContext/NotificationContext";
 
 function PrivateRoute({ children }) {
   const navigate = useNavigate();
@@ -76,8 +78,7 @@ function UserDashboardLayout() {
       <Route path="/addtask" element={<AddTask />} />
       <Route path="/addReminder" element={<AddReminder />} />
       <Route path="/myReminders" element={<MyReminders />} />
-      <Route path="/myReminders" element={<MyReminders />} />
-      <Route path="/remindersHistory" element={<RemindersHistory />} />
+      <Route path="/settings" element={<Settings />} />
       <Route path="/notifications" element={<Notifications />} />
     </Routes>
   );
@@ -106,7 +107,11 @@ function App() {
             path="/user/dashboard/*"
             element={
               <PrivateRoute>
-                <UserDashboardLayout />
+                <ReminderProvider>
+                  <NotificationProvider>
+                    <UserDashboardLayout />
+                  </NotificationProvider>
+                </ReminderProvider>
               </PrivateRoute>
             }
           />

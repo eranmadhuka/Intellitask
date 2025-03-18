@@ -76,11 +76,11 @@ const navigation = {
         { name: "Add Reminders", path: "/user/dashboard/addReminder" },
         {
           name: "Reminders History ",
-          path: "/user/dashboard/remindersHistory",
+          path: "/user/dashboard/notifications",
         },
         {
           name: "Notification Settings",
-          path: "/user/dashboard/notifications",
+          path: "/user/dashboard/settings",
         },
       ],
     },

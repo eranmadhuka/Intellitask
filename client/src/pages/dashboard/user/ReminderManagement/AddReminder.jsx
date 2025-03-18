@@ -43,25 +43,8 @@ const AddReminder = () => {
     <div>
       {" "}
       <DashboardLayout>
-        <div>
-          <h1 className="text-customDark font-semibold text-2xl dark:text-gray-300 mt-5">
-            Dashboard
-          </h1>
-          <p className="text-customGray text-sm">
-            Welcome to Task Management Dashboard.
-          </p>
-        </div>
-
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800">
-                Welcome back!
-              </h1>
-              <p className="text-gray-600">
-                Here's an overview of your reminders and notifications.
-              </p>
-            </div>
             <button
               onClick={() => setShowReminderForm(true)}
               className="mt-4 md:mt-0 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
