@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { XIcon } from "lucide-react";
-import { Reminder, Priority, useReminders } from "../RNContext/ReminderContext";
-import { useNotifications } from "../RNContext/NotificationContext";
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 const ReminderForm = ({ editingId, onClose }) => {
-  const { addReminder, updateReminder, getReminder } = useReminders();
-  const { addNotification } = useNotifications();
   const [tagsInput, setTagsInput] = useState("");
   const [formData, setFormData] = useState({
     title: "",
@@ -21,15 +20,18 @@ const ReminderForm = ({ editingId, onClose }) => {
     tags: [],
   });
 
+  // Fetch reminder if editing
   useEffect(() => {
     if (editingId) {
-      const reminder = getReminder(editingId);
-      if (reminder) {
-        setFormData({ ...reminder });
-        setTagsInput(reminder.tags.join(", "));
-      }
+      axios
+        .get(`${API_URL}/api/reminders/${editingId}`)
+        .then((response) => {
+          setFormData(response.data);
+          setTagsInput(response.data.tags.join(", "));
+        })
+        .catch((error) => console.error("Error fetching reminder:", error));
     }
-  }, [editingId, getReminder]);
+  }, [editingId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,7 +45,7 @@ const ReminderForm = ({ editingId, onClose }) => {
     setTagsInput(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const processedTags = tagsInput
       .split(",")
@@ -51,22 +53,24 @@ const ReminderForm = ({ editingId, onClose }) => {
       .filter((tag) => tag.length > 0);
     const reminderWithTags = { ...formData, tags: processedTags };
 
-    if (editingId) {
-      updateReminder({ ...reminderWithTags, id: editingId });
-      addNotification({
-        title: "Reminder Updated",
-        message: `"${formData.title}" has been updated.`,
-        type: "system",
-      });
-    } else {
-      addReminder(reminderWithTags);
-      addNotification({
-        title: "Reminder Created",
-        message: `"${formData.title}" has been added to your reminders.`,
-        type: "system",
-      });
+    try {
+      if (editingId) {
+        // Update existing reminder
+        await axios.put(
+          `${API_URL}/api/reminders/${editingId}`,
+          reminderWithTags
+        );
+        alert("Reminder updated successfully!");
+      } else {
+        // Create new reminder
+        await axios.post(`${API_URL}/api/reminders`, reminderWithTags);
+        alert("Reminder created successfully!");
+      }
+      onClose();
+    } catch (error) {
+      console.error("Error saving reminder:", error);
+      alert("Failed to save reminder.");
     }
-    onClose();
   };
 
   return (
