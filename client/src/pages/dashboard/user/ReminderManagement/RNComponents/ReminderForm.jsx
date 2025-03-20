@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { XIcon } from "lucide-react";
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = "http://localhost:5001";
 
 const ReminderForm = ({ editingId, onClose }) => {
   const [tagsInput, setTagsInput] = useState("");
