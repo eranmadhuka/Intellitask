@@ -1,194 +1,217 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import DashboardLayout from "../../../../components/Common/Layout/DashboardLayout";
 
-const MyTasks = () => {
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Task 1",
-      description: "Complete project proposal",
-      priority: "High",
-      dueDate: "2025-03-20",
-      status: "To Do",
-    },
-    {
-      id: 2,
-      title: "Task 2",
-      description: "Fix UI issues on dashboard",
-      priority: "Medium",
-      dueDate: "2025-03-22",
-      status: "In Progress",
-    },
-    {
-      id: 3,
-      title: "Task 3",
-      description: "Write test cases",
-      priority: "Low",
-      dueDate: "2025-03-25",
-      status: "Completed",
-    },
-  ]);
+const API_URL = process.env.REACT_APP_API_URL;
 
+const TaskList = () => {
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [editingTask, setEditingTask] = useState(null);
-  const [updatedTask, setUpdatedTask] = useState({
-    title: "",
-    description: "",
-    priority: "",
-    dueDate: "",
-    status: "",
-  });
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Handle edit button click
-  const handleEditClick = (task) => {
-    setEditingTask(task.id);
-    setUpdatedTask(task);
+  useEffect(() => {
+    const fetchTasks = async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setError("Access denied. No token provided.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await axios.get(`${API_URL}/api/tasks/tasks`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setTasks(response.data);
+      } catch (err) {
+        setError(err.response?.data?.message || "Failed to fetch tasks");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTasks();
+  }, []);
+
+  const handleEdit = (task) => {
+    setEditingTask(task);
+    setIsModalOpen(true);
   };
 
-  // Handle update input changes
-  const handleUpdateChange = (e) => {
-    setUpdatedTask({ ...updatedTask, [e.target.name]: e.target.value });
+  const handleDelete = async (id) => {
+    const token = localStorage.getItem("token");
+    try {
+      await axios.delete(`${API_URL}/api/tasks/delete/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setTasks(tasks.filter((task) => task._id !== id));
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to delete task");
+    }
   };
 
-  // Update task function
-  const updateTask = () => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === editingTask ? { ...task, ...updatedTask } : task
-      )
-    );
-    setEditingTask(null);
-  };
-
-  // Delete task
-  const deleteTask = (id) => {
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
+  const handleSave = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      await axios.put(
+        `${API_URL}/api/tasks/update/${editingTask._id}`,
+        editingTask,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      setTasks(
+        tasks.map((task) => (task._id === editingTask._id ? editingTask : task))
+      );
+      setIsModalOpen(false);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to update task");
+    }
   };
 
   return (
     <DashboardLayout>
-      <div>
-        <h1 className="text-customDark font-semibold text-2xl dark:text-gray-300 mt-5">
-          Dashboard
-        </h1>
-        <p className="text-customGray text-sm">
-          Welcome to Learning Management Dashboard.
-        </p>
+      <h1 className="text-customDark font-semibold text-2xl dark:text-gray-300 mt-5">
+        My Tasks
+      </h1>
+      <p className="text-customGray text-sm dark:text-gray-400">
+        Manage your tasks efficiently with smart prioritization.
+      </p>
+
+      <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-8">
+        <h2 className="text-2xl font-bold mb-4 text-center">Task List</h2>
+
+        {loading && (
+          <p className="text-gray-600 text-center">Loading tasks...</p>
+        )}
+        {error && <p className="text-red-500 text-center">{error}</p>}
+
+        {tasks.length === 0 && !loading && (
+          <p className="text-gray-500 text-center">No tasks available.</p>
+        )}
+
+        <ul className="space-y-4">
+          {tasks.map((task) => (
+            <li
+              key={task._id}
+              className="p-4 border rounded-md shadow-sm bg-gray-100"
+            >
+              <h3 className="text-lg font-semibold">{task.title}</h3>
+              <p className="text-gray-700">{task.description}</p>
+              <p className="text-sm text-gray-600">
+                Priority: <span className="font-medium">{task.priority}</span>
+              </p>
+              <p className="text-sm text-gray-600">
+                Due Date:{" "}
+                <span className="font-medium">
+                  {new Date(task.dueDate).toLocaleDateString()}
+                </span>
+              </p>
+              <p className="text-sm text-gray-600">
+                Status: <span className="font-medium">{task.status}</span>
+              </p>
+              <div className="flex space-x-2 mt-2">
+                <button
+                  onClick={() => handleEdit(task)}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(task._id)}
+                  className="px-4 py-2 bg-red-500 text-white rounded-md"
+                >
+                  Delete
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
 
-      <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-4">My Tasks</h2>
-        {tasks.length === 0 ? (
-          <p className="text-gray-500">No tasks available.</p>
-        ) : (
-          <ul className="space-y-4">
-            {tasks.map((task) => (
-              <li
-                key={task.id}
-                className="p-4 border rounded-md shadow-sm bg-gray-100"
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+            <h2 className="text-2xl font-bold mb-4">Edit Task</h2>
+            <label>Title</label>
+            <input
+              type="text"
+              className="border p-2 w-full mb-4"
+              value={editingTask.title}
+              onChange={(e) =>
+                setEditingTask({ ...editingTask, title: e.target.value })
+              }
+            />
+            <label>Description</label>
+            <textarea
+              className="border p-2 w-full mb-4"
+              value={editingTask.description}
+              onChange={(e) =>
+                setEditingTask({ ...editingTask, description: e.target.value })
+              }
+            />
+            <label>Priority</label>
+            <select
+              className="border p-2 w-full mb-4"
+              value={editingTask.priority}
+              onChange={(e) =>
+                setEditingTask({ ...editingTask, priority: e.target.value })
+              }
+            >
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+            <label>Due Date</label>
+            <input
+              type="date"
+              className="border p-2 w-full mb-4"
+              value={editingTask.dueDate}
+              onChange={(e) =>
+                setEditingTask({ ...editingTask, dueDate: e.target.value })
+              }
+            />
+            <label>Status</label>
+            <select
+              className="border p-2 w-full mb-4"
+              value={editingTask.status}
+              onChange={(e) =>
+                setEditingTask({ ...editingTask, status: e.target.value })
+              }
+            >
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 bg-gray-500 text-white rounded-md"
               >
-                {editingTask === task.id ? (
-                  <div className="space-y-2">
-                    <input
-                      type="text"
-                      name="title"
-                      value={updatedTask.title}
-                      onChange={handleUpdateChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      placeholder="Title"
-                    />
-                    <textarea
-                      name="description"
-                      value={updatedTask.description}
-                      onChange={handleUpdateChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                      placeholder="Description"
-                    />
-                    <select
-                      name="priority"
-                      value={updatedTask.priority}
-                      onChange={handleUpdateChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    >
-                      <option value="High">High</option>
-                      <option value="Medium">Medium</option>
-                      <option value="Low">Low</option>
-                    </select>
-                    <input
-                      type="date"
-                      name="dueDate"
-                      value={updatedTask.dueDate}
-                      onChange={handleUpdateChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    />
-                    <select
-                      name="status"
-                      value={updatedTask.status}
-                      onChange={handleUpdateChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    >
-                      <option value="To Do">To Do</option>
-                      <option value="In Progress">In Progress</option>
-                      <option value="Completed">Completed</option>
-                    </select>
-                    <button
-                      onClick={updateTask}
-                      className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={() => setEditingTask(null)}
-                      className="ml-2 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <h3 className="text-lg font-semibold">{task.title}</h3>
-                    <p className="text-gray-700">{task.description}</p>
-                    <p className="text-sm text-gray-600">
-                      Priority:{" "}
-                      <span className="font-medium">{task.priority}</span>
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Due Date:{" "}
-                      <span className="font-medium">{task.dueDate}</span>
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Status: <span className="font-medium">{task.status}</span>
-                    </p>
-                    <div className="flex space-x-2 mt-2">
-                      <button
-                        onClick={() => handleEditClick(task)}
-                        className="px-3 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition"
-                      >
-                        Edit
-                      </button>
-                      {task.status !== "Completed" && (
-                        <button
-                          onClick={() => updateTask(task.id, "Completed")}
-                          className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
-                        >
-                          Mark as Completed
-                        </button>
-                      )}
-                      <button
-                        onClick={() => deleteTask(task.id)}
-                        className="px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                className="px-4 py-2 bg-green-500 text-white rounded-md"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 };
 
-export default MyTasks;
+export default TaskList;
