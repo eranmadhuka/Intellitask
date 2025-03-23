@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { XIcon } from "lucide-react";
 
-const API_URL = "http://localhost:5001";
+const API_URL = "http://localhost:5001/api";
 
 const ReminderForm = ({ editingId, onClose }) => {
   const [tagsInput, setTagsInput] = useState("");
@@ -24,7 +24,7 @@ const ReminderForm = ({ editingId, onClose }) => {
   useEffect(() => {
     if (editingId) {
       axios
-        .get(`${API_URL}/api/reminders/${editingId}`)
+        .get(`${API_URL}/reminders/${editingId}`)
         .then((response) => {
           setFormData(response.data);
           setTagsInput(response.data.tags.join(", "));
@@ -56,14 +56,11 @@ const ReminderForm = ({ editingId, onClose }) => {
     try {
       if (editingId) {
         // Update existing reminder
-        await axios.put(
-          `${API_URL}/api/reminders/${editingId}`,
-          reminderWithTags
-        );
+        await axios.put(`${API_URL}/reminders/${editingId}`, reminderWithTags);
         alert("Reminder updated successfully!");
       } else {
         // Create new reminder
-        await axios.post(`${API_URL}/api/reminders`, reminderWithTags);
+        await axios.post(`${API_URL}/reminders`, reminderWithTags);
         alert("Reminder created successfully!");
       }
       onClose();
