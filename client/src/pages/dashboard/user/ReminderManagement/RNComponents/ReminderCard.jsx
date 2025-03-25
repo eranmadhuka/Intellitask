@@ -43,7 +43,7 @@ const ReminderCard = ({ reminder, onEdit }) => {
       <div className="flex items-start justify-between">
         <div className="flex items-start space-x-3">
           <button
-            onClick={() => toggleComplete(reminder.id)}
+            onClick={() => toggleComplete(reminder._id)}
             className={`mt-1 flex-shrink-0 w-5 h-5 rounded-full border flex items-center justify-center ${
               reminder.completed
                 ? "bg-blue-500 border-blue-500 text-white"
@@ -101,14 +101,14 @@ const ReminderCard = ({ reminder, onEdit }) => {
         </div>
         <div className="flex space-x-1">
           <button
-            onClick={() => onEdit(reminder.id)}
+            onClick={() => onEdit(reminder._id)}
             className="p-1 text-gray-400 hover:text-blue-600 rounded-full hover:bg-gray-100"
             aria-label="Edit reminder"
           >
             <EditIcon className="w-4 h-4" />
           </button>
           <button
-            onClick={() => deleteReminder(reminder.id)}
+            onClick={() => deleteReminder(reminder._id)}
             className="p-1 text-gray-400 hover:text-red-600 rounded-full hover:bg-gray-100"
             aria-label="Delete reminder"
           >

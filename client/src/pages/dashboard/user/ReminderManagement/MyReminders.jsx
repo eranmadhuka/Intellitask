@@ -1,18 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { PlusIcon, FilterIcon, CheckSquareIcon, TagIcon } from "lucide-react";
-import { useReminders } from "./RNContext/ReminderContext";
 import ReminderCard from "./RNComponents/ReminderCard";
 import ReminderForm from "./RNComponents/ReminderForm";
 import DashboardLayout from "../../../../components/Common/Layout/DashboardLayout";
 
 const MyReminders = () => {
-  const { reminders } = useReminders();
+  const [reminders, setReminders] = useState([]);
   const [showReminderForm, setShowReminderForm] = useState(false);
   const [editingId, setEditingId] = useState(undefined);
   const [sortBy, setSortBy] = useState("date-asc");
   const [filterBy, setFilterBy] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTag, setSelectedTag] = useState(null);
+
+  // Fetch reminders from backend
+  useEffect(() => {
+    fetchReminders();
+  }, []);
+
+  const fetchReminders = async () => {
+    try {
+      const response = await axios.get("http://localhost:5001/api/reminders/");
+      setReminders(response.data); // Set reminders from API
+    } catch (error) {
+      console.error("Error fetching reminders:", error);
+    }
+  };
 
   const handleEditReminder = (id) => {
     setEditingId(id);
@@ -94,6 +108,7 @@ const MyReminders = () => {
             <select
               value={filterBy}
               onChange={(e) => setFilterBy(e.target.value)}
+              className="ml-4 px-3 py-2 border rounded-md"
             >
               <option value="all">All</option>
               <option value="active">Active</option>
