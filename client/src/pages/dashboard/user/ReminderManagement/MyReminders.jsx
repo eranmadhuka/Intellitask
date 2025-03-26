@@ -28,6 +28,12 @@ const MyReminders = () => {
     }
   };
 
+  // Handle CRUD operation completion
+  const handleCRUDComplete = () => {
+    fetchReminders(); // Auto-refresh reminders
+    closeForm(); // Close the form after completion
+  };
+
   const handleEditReminder = (id) => {
     setEditingId(id);
     setShowReminderForm(true);
@@ -148,7 +154,11 @@ const MyReminders = () => {
           </div>
 
           {showReminderForm && (
-            <ReminderForm editingId={editingId} onClose={closeForm} />
+            <ReminderForm
+              editingId={editingId}
+              onClose={closeForm}
+              onCRUDComplete={handleCRUDComplete} // Refresh after form submission
+            />
           )}
         </div>
       </DashboardLayout>
