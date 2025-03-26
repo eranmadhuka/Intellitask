@@ -3,17 +3,13 @@ import { useAuth } from "../../../context/AuthContext";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { MdDashboard } from "react-icons/md";
-import { FaUserGraduate, FaTasks } from "react-icons/fa";
-import { FaUsers } from "react-icons/fa";
+import { FaUserGraduate, FaTasks, FaUsers } from "react-icons/fa";
 import { FaBarsProgress } from "react-icons/fa6";
 import { RiUserSettingsFill } from "react-icons/ri";
 import { PiPaperclipFill } from "react-icons/pi";
 import { TbLogout2 } from "react-icons/tb";
 import { HiBellAlert } from "react-icons/hi2";
-
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
-
-const API_URL = process.env.REACT_APP_API_URL;
 
 const navigation = {
   admin: [
@@ -65,7 +61,7 @@ const navigation = {
       icon: <FaUserGraduate />,
       subMenu: [
         { name: "Add New Task", path: "/user/dashboard/addtask" },
-        { name: "View All Tasks", path: "/user/dashboard//" },
+        { name: "View All Tasks", path: "/user/dashboard/" },
       ],
     },
     {
@@ -75,7 +71,7 @@ const navigation = {
         { name: "Upcoming Reminders", path: "/user/dashboard/myReminders" },
         { name: "Manage Reminders", path: "/user/dashboard/addReminder" },
         {
-          name: "Notifications History ",
+          name: "Notifications History",
           path: "/user/dashboard/notifications",
         },
         {
@@ -101,15 +97,13 @@ const navigation = {
   ],
 };
 
-const Sidebar = ({ isSidebarOpen }) => {
+const Sidebar = ({ isSidebarOpen, reminderCount }) => {
   const { currentUser, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [activeSubmenu, setActiveSubmenu] = useState("");
 
-  // const currentUser = "user";
   const activeMenu = navigation[currentUser?.role] || [];
-  // const activeMenu = navigation[currentUser] || [];
 
   const handleLogout = () => {
     logout();
@@ -120,10 +114,6 @@ const Sidebar = ({ isSidebarOpen }) => {
     setActiveSubmenu(activeSubmenu === name ? "" : name);
   };
 
-  // const isActiveRoute = (path) => {
-  //     return location.pathname.startsWith(path);
-  // };
-
   const isActiveRoute = (path) => {
     return location.pathname === path;
   };
@@ -131,9 +121,7 @@ const Sidebar = ({ isSidebarOpen }) => {
   return (
     <aside
       className={`fixed top-16 bottom-0 left-0 z-10 w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-200 ease-in-out ${
-        isSidebarOpen
-          ? "translate-x-0"
-          : "-translate-x-full lg:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
+        isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
       }`}
     >
       <div className="flex flex-col h-full">
@@ -205,6 +193,20 @@ const Sidebar = ({ isSidebarOpen }) => {
             ))}
           </ul>
         </nav>
+
+        {/* Reminder Count */}
+        {currentUser?.role === "user" && reminderCount > 0 && (
+          <div className="px-3 py-2 border-t dark:border-gray-700 dark:text-gray-200">
+            <div className="flex justify-between items-center p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <span className="font-medium">Reminders</span>
+              <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs">
+                {reminderCount}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Logout */}
         <div className="px-3 py-2 border-t dark:border-gray-700 dark:text-gray-200">
           <button
             onClick={handleLogout}
