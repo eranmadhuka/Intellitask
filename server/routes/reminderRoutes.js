@@ -64,4 +64,24 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+// ✅ Update the completed status of a reminder
+router.patch("/:id/completed", async (req, res) => {
+  try {
+    const { completed } = req.body; // Expect completed status in request body
+    const updatedReminder = await Reminder.findByIdAndUpdate(
+      req.params.id,
+      { completed: completed }, // Only update the completed field
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedReminder) {
+      return res.status(404).json({ message: "Reminder not found" });
+    }
+
+    res.status(200).json(updatedReminder);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

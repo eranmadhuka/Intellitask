@@ -72,14 +72,14 @@ const navigation = {
       name: "Reminders & Alerts",
       icon: <HiBellAlert />,
       subMenu: [
-        { name: "Upcoming Deadlines", path: "/user/dashboard/myReminders" },
-        { name: "Add Reminders", path: "/user/dashboard/addReminder" },
+        { name: "Upcoming Reminders", path: "/user/dashboard/myReminders" },
+        { name: "Manage Reminders", path: "/user/dashboard/addReminder" },
         {
-          name: "Reminders History ",
+          name: "Notifications History ",
           path: "/user/dashboard/notifications",
         },
         {
-          name: "Notification Settings",
+          name: "Notifications Settings",
           path: "/user/dashboard/settings",
         },
       ],
