@@ -40,7 +40,7 @@ const Notifications = () => {
       <DashboardLayout>
         <div className="max-w-4xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-            <h1 className="text-2xl font-bold text-white">
+            <h1 className="text-2xl font-bold text-blue">
               Completed Reminders
             </h1>
           </div>

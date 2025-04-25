@@ -204,7 +204,7 @@ const MyReminders = () => {
       <DashboardLayout>
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-            <h1 className="text-2xl font-bold text-white">Reminders</h1>
+            <h1 className="text-2xl font-bold text-black">Reminders</h1>
           </div>
 
           <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 flex items-center space-x-4">
