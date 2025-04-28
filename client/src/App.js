@@ -1,7 +1,11 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
-
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+} from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
 // Import necessary components
 
@@ -16,39 +20,36 @@ import Contact from "./pages/Contact";
 import AddTask from "./pages/dashboard/user/TaskManagement/AddTask";
 import MyTasks from "./pages/dashboard/user/TaskManagement/MyTasks";
 
-import Header from './components/Header';
-import Footer from './components/Footer';
-import Home from './pages/Home';
-import NotFound from './pages/NotFound';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import { ForgotPassword } from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
-import AddUser from './pages/dashboard/admin/AddUser';
-import EditUser from './pages/dashboard/admin/EditUser';
-import UserDetails from './pages/dashboard/admin/UserDetails';
-
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import Home from "./pages/Home";
+import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import { ForgotPassword } from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import AddUser from "./pages/dashboard/admin/AddUser";
+import EditUser from "./pages/dashboard/admin/EditUser";
+import UserDetails from "./pages/dashboard/admin/UserDetails";
 
 // Admin Dashboard components
-import Dashboard from './pages/dashboard/admin/Dashboard';
+import Dashboard from "./pages/dashboard/admin/Dashboard";
 
 // User Dashboard components
 
 // Student Dashboard components
 import UserDashboard from "./pages/dashboard/user/userDashboard";
 
-import UserDashboard from './pages/dashboard/user/userDashboard';
-import UserProfile from './pages/dashboard/admin/UserProfile';
+import UserDashboard from "./pages/dashboard/user/userDashboard";
+import UserProfile from "./pages/dashboard/admin/UserProfile";
 
 // PrivateRoute component ensures that only authenticated users can access certain routes
 
-
 function PrivateRoute({ children }) {
   const navigate = useNavigate(); // Hook for navigation
-  
-  
+
   const { currentUser, loading } = useAuth(); // Get user authentication status
 
   if (loading) {
@@ -56,12 +57,10 @@ function PrivateRoute({ children }) {
   }
 
   if (!currentUser) {
-
     return navigate("/login", { replace: true });
     return navigate("/login", { replace: true });
 
-    return navigate('/login', { replace: true }); // Redirect to login if user is not authenticated
-
+    return navigate("/login", { replace: true }); // Redirect to login if user is not authenticated
   }
 
   return children; // Render children if user is authenticated
@@ -85,8 +84,6 @@ function PublicLayout() {
 
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-        
-
       </Routes>
       {/* Display Footer */}
       <Footer />
@@ -100,9 +97,9 @@ function AdminDashboardLayout() {
     <Routes>
       <Route index element={<Dashboard />} /> {/* Admin dashboard main page */}
       <Route path="/add" element={<AddUser />} />
-        <Route path="/edit/:id" element={<EditUser />} />
-        <Route path="/users" element={<UserDetails />} />
-        <Route path='/profile' element={<UserProfile />} /> 
+      <Route path="/edit/:id" element={<EditUser />} />
+      <Route path="/users" element={<UserDetails />} />
+      <Route path="/profile" element={<UserProfile />} />
     </Routes>
   );
 }
@@ -116,8 +113,7 @@ function UserDashboardLayout() {
       <Route path="/addtask" element={<AddTask />} />
       <Route path="/mytasks" element={<MyTasks />} />
 
-      <Route path='/profile' element={<UserProfile />} /> 
-
+      <Route path="/profile" element={<UserProfile />} />
     </Routes>
   );
 }
@@ -125,8 +121,12 @@ function UserDashboardLayout() {
 // Main App Component
 function App() {
   return (
-    <AuthProvider> {/* Provides authentication context */}
-      <Router> {/* Enables client-side routing */}
+    <AuthProvider>
+      {" "}
+      {/* Provides authentication context */}
+      <Router>
+        {" "}
+        {/* Enables client-side routing */}
         <Routes>
           {/* Public Routes */}
           <Route path="/*" element={<PublicLayout />} />
@@ -157,4 +157,3 @@ function App() {
 }
 
 export default App;
-
