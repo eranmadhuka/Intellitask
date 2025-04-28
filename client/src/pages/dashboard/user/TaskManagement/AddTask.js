@@ -88,6 +88,7 @@ const AddTask = ({ onAddTask }) => {
       <SmartPrioritization />
 
       {/* Regular Task Form */}
+<<<<<<< Updated upstream
       <div className="w-full mt-5">
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md h-full">
           <h2 className="text-2xl font-bold mb-4 dark:text-gray-300">
@@ -132,6 +133,44 @@ const AddTask = ({ onAddTask }) => {
               <label className="block text-gray-700 dark:text-gray-300">
                 Priority:
               </label>
+=======
+      {/* <div className="w-full mt-5">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md h-full">
+          <h2 className="text-2xl font-bold mb-4 dark:text-gray-300">Add Task Manually</h2>
+          {error && <p className="text-red-500 mb-2">{error}</p>}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-gray-700 dark:text-gray-300">Title:</label>
+              <div className="flex">
+                <input
+                  type="text"
+                  name="title"
+                  value={task.title}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 border rounded-md focus:ring-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
+                />
+
+              </div>
+
+            </div>
+            <div>
+              <label className="block text-gray-700 dark:text-gray-300">Description:</label>
+              <div className="flex">
+                <textarea
+                  name="description"
+                  value={task.description}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border rounded-md focus:ring-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
+                ></textarea>
+
+              </div>
+
+            </div>
+
+            <div>
+              <label className="block text-gray-700 dark:text-gray-300">Priority:</label>
+>>>>>>> Stashed changes
               <select
                 name="priority"
                 value={task.priority}
@@ -145,24 +184,36 @@ const AddTask = ({ onAddTask }) => {
             </div>
 
             <div>
+<<<<<<< Updated upstream
               <label className="block text-gray-700 dark:text-gray-300">
                 Due Date:
               </label>
+=======
+              <label className="block text-gray-700 dark:text-gray-300">Due Date:</label>
+>>>>>>> Stashed changes
               <input
                 type="date"
                 name="dueDate"
                 value={task.dueDate}
                 onChange={handleChange}
+<<<<<<< Updated upstream
                 required
                 className="w-full px-3 py-2 border rounded-md focus:ring-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                 min={new Date().toISOString().split("T")[0]}
+=======
+                className="w-full px-3 py-2 border rounded-md focus:ring-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
+>>>>>>> Stashed changes
               />
             </div>
 
             <div>
+<<<<<<< Updated upstream
               <label className="block text-gray-700 dark:text-gray-300">
                 Category:
               </label>
+=======
+              <label className="block text-gray-700 dark:text-gray-300">Category:</label>
+>>>>>>> Stashed changes
               <select
                 name="category"
                 value={task.category}
@@ -185,7 +236,8 @@ const AddTask = ({ onAddTask }) => {
             </button>
           </form>
         </div>
-      </div>
+      </div> */}
+
     </DashboardLayout>
   );
 };
