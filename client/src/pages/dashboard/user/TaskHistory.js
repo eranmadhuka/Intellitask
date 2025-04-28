@@ -1,6 +1,6 @@
 import React from 'react'
 
-const VoiceInput = () => {
+const TaskHistory = () => {
     return (
         <div>
 
@@ -8,4 +8,4 @@ const VoiceInput = () => {
     )
 }
 
-export default VoiceInput
+export default TaskHistory

@@ -1,15 +1,16 @@
-require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
+const dotenv = require("dotenv");
 const cors = require("cors");
-const multer = require("multer");
-const transcribeAudio = require("./speechService");
+const bcrypt = require('bcryptjs');
 
 // Import routes
 const authRoutes = require("./routes/authRoutes");
 const taskRoutes = require("./routes/taskRoute");
 const reminderRoutes = require("./routes/reminderRoutes");
 
+
+dotenv.config();
 const app = express();
 
 // Middleware
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use(cors());
 
 // Routes
+
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/reminders", reminderRoutes);
@@ -33,6 +35,9 @@ app.post("/api/speech-to-text", upload.single("audio"), async (req, res) => {
     res.status(500).json({ error: "Speech recognition failed" });
   }
 });
+
+app.use("/api/auth", require("./routes/authRoutes"));
+
 
 // Connect to MongoDB
 mongoose

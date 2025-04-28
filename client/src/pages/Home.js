@@ -17,7 +17,7 @@ const Home = () => {
                                 Get Started <FaArrowRight className="ml-2" />
                             </button>
                             <button className="bg-transparent border-2 border-white py-2 px-4 rounded-lg hover:bg-white hover:text-indigo-800 transition duration-300 flex items-center justify-center dark:border-gray-300 dark:hover:bg-gray-300 dark:hover:text-gray-800">
-                                Watch Demo
+                                Watch Demo button
                             </button>
                         </div>
                     </div>

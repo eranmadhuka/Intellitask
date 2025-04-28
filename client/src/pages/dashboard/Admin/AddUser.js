@@ -3,10 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import DashboardLayout from '../../../components/Common/Layout/DashboardLayout';
 
-const API_URL = process.env.REACT_APP_API_URL;
-
-const Register = () => {
+const AddUser = () => {
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -20,6 +19,8 @@ const Register = () => {
 
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+    const [showPopup, setShowPopup] = useState(false);
+    const [popupMessage, setPopupMessage] = useState('');
     const navigate = useNavigate();
 
     // Handle input changes
@@ -56,33 +57,44 @@ const Register = () => {
     };
 
     // Handle form submission
-    const handleRegister = async (e) => {
+    const handleAddUser = async (e) => {
         e.preventDefault();
         setLoading(true);
-
+    
+        // Normalize gender value before submission
+        const normalizedFormData = {
+            ...formData,
+            gender: formData.gender ? formData.gender.toLowerCase() : ''
+        };
+    
         if (!validateForm()) {
             setLoading(false);
             return;
         }
-
+    
         try {
-            await axios.post(`${API_URL}/api/auth/register`, formData);
-            toast.success('Registration successful! Redirecting to login...');
+            await axios.post(`http://localhost:3001/api/auth/add`, normalizedFormData);
+    
+            setPopupMessage('User added successfully!');
+            setShowPopup(true);
             setTimeout(() => {
-                navigate('/login');
+                navigate('/admin/dashboard/users');
             }, 2000);
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Registration failed');
+            setPopupMessage(error.response?.data?.message || 'Failed to add user');
+            setShowPopup(true);
         } finally {
             setLoading(false);
         }
     };
+    
 
     return (
+        <DashboardLayout>
         <div className="bg-gray-100 dark:bg-slate-900 min-h-screen flex items-center justify-center">
             <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md dark:bg-slate-800">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Create Your Account</h1>
-                <form className="space-y-4" onSubmit={handleRegister}>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Add New User</h1>
+                <form className="space-y-4" onSubmit={handleAddUser}>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">First Name</label>
@@ -131,15 +143,24 @@ const Register = () => {
                         {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
                     </div>
                     <button type="submit" className={`w-full px-4 py-2 text-white bg-blue-600 rounded-lg ${loading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={loading}>
-                        {loading ? 'Registering...' : 'Register'}
+                        {loading ? 'Adding...' : 'Add User'}
                     </button>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Already have an account? <Link to="/login" className="text-blue-600 hover:underline dark:text-blue-400">Login</Link>
+                        <Link to="/admin/dashboard/users" className="text-blue-600 hover:underline dark:text-blue-400">Back to Users</Link>
                     </p>
                 </form>
             </div>
+            {showPopup && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white dark:bg-slate-700 p-6 rounded-lg shadow-lg text-center">
+                        <p className="text-lg text-gray-900 dark:text-white">{popupMessage}</p>
+                        <button onClick={() => setShowPopup(false)} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">OK</button>
+                    </div>
+                </div>
+            )}
         </div>
+    </DashboardLayout>
     );
 };
 
-export default Register;
+export default AddUser;
