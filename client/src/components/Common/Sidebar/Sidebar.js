@@ -1,6 +1,12 @@
+
 import React, { useState } from "react";
 import { useAuth } from "../../../context/AuthContext";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+
+
+import React, { useState } from 'react';
+import { useAuth } from '../../../context/AuthContext';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { MdDashboard } from "react-icons/md";
 import { FaUserGraduate, FaTasks } from "react-icons/fa";
@@ -16,6 +22,7 @@ import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 const API_URL = process.env.REACT_APP_API_URL;
 
 const navigation = {
+
   admin: [
     {
       name: "Dashboard",
@@ -93,6 +100,84 @@ const navigation = {
       icon: <RiUserSettingsFill />,
     },
   ],
+
+    admin: [
+        {
+            name: 'Dashboard',
+            path: '/admin/dashboard',
+            icon: <MdDashboard />,
+        },
+        {
+            name: 'Users Management',
+            icon: <FaUsers />,
+            subMenu: [
+                { name: 'View All Users', path: '/admin/dashboard/users' },
+                { name: 'Add New User', path: '/admin/dashboard/add' },
+            ],
+        },
+        {
+            name: 'Task Monitoring',
+            icon: <FaTasks />,
+            subMenu: [
+                { name: 'Task Analytics', path: '/admin/dashboard/' },
+                { name: 'User Task Logs', path: '/admin/dashboard/' },
+                { name: 'Productivity Reports', path: '/admin/dashboard/' },
+            ],
+        },
+        {
+            name: 'System Settings',
+            icon: <PiPaperclipFill />,
+            subMenu: [
+                { name: 'Task Categorization Rules', path: '/admin/dashboard/' },
+                { name: 'Voice-to-Text Configuration', path: '/admin/dashboard/' },
+                { name: 'Notification & Reminder Settings', path: '/admin/dashboard/' },
+            ],
+        },
+        {
+            name: 'Profile Setting',
+            path: '/admin/dashboard/profile',
+            icon: <RiUserSettingsFill />,
+        },
+    ],
+    user: [
+        {
+            name: 'Dashboard',
+            path: '/user/dashboard',
+            icon: <MdDashboard />,
+        },
+        {
+            name: 'My Tasks',
+            icon: <FaUserGraduate />,
+            subMenu: [
+                { name: 'Add New Task', path: '/user/dashboard/' },
+                { name: 'View All Tasks', path: '/user/dashboard//' },
+            ],
+        },
+        {
+            name: 'Reminders & Alerts',
+            icon: <HiBellAlert />,
+            subMenu: [
+                { name: 'Upcoming Deadlines', path: '/user/dashboard/' },
+                { name: 'Smart Categorization', path: '/user/dashboard/' },
+                { name: 'Notification Settings', path: '/user/dashboard/' },
+            ],
+        },
+        {
+            name: 'Progress & Insights',
+            icon: <FaBarsProgress />,
+            subMenu: [
+                { name: 'Productivity Stats', path: '/user/dashboard/' },
+                { name: 'Time Spent on Tasks', path: '/user/dashboard/' },
+                { name: 'Task Completion Rate', path: '/user/dashboard/' },
+            ],
+        },
+        {
+            name: 'Profile Setting',
+            path: '/user/dashboard/profile',
+            icon: <RiUserSettingsFill />,
+        },
+    ],
+
 };
 
 const Sidebar = ({ isSidebarOpen }) => {
