@@ -1,6 +1,6 @@
 import React from 'react'
 
-const SmartPrioritization = () => {
+const MyTasks = () => {
     return (
         <div>
 
@@ -8,4 +8,4 @@ const SmartPrioritization = () => {
     )
 }
 
-export default SmartPrioritization;
+export default MyTasks
