@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { Reminder, useReminders } from "../RNContext/ReminderContext";
 
-const ReminderCard = ({ reminder, onEdit }) => {
+const ReminderCard = ({ reminder, onEdit, onToggleSelect, isSelected }) => {
   const { toggleComplete, deleteReminder } = useReminders();
 
   const formatDate = (dateStr) => {
@@ -41,17 +41,14 @@ const ReminderCard = ({ reminder, onEdit }) => {
       }`}
     >
       <div className="flex items-start justify-between">
+        {/* Checkbox for selection */}
         <div className="flex items-start space-x-3">
-          <button
-            onClick={() => toggleComplete(reminder.id)}
-            className={`mt-1 flex-shrink-0 w-5 h-5 rounded-full border flex items-center justify-center ${
-              reminder.completed
-                ? "bg-blue-500 border-blue-500 text-white"
-                : "border-gray-300 hover:border-blue-500"
-            }`}
-          >
-            {reminder.completed && <CheckIcon className="w-3 h-3" />}
-          </button>
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={() => onToggleSelect(reminder._id)}
+            className="form-checkbox h-5 w-5 text-blue-600"
+          />
           <div>
             <h3
               className={`text-lg font-medium ${
@@ -101,14 +98,14 @@ const ReminderCard = ({ reminder, onEdit }) => {
         </div>
         <div className="flex space-x-1">
           <button
-            onClick={() => onEdit(reminder.id)}
+            onClick={() => onEdit(reminder._id)}
             className="p-1 text-gray-400 hover:text-blue-600 rounded-full hover:bg-gray-100"
             aria-label="Edit reminder"
           >
             <EditIcon className="w-4 h-4" />
           </button>
           <button
-            onClick={() => deleteReminder(reminder.id)}
+            onClick={() => deleteReminder(reminder._id)}
             className="p-1 text-gray-400 hover:text-red-600 rounded-full hover:bg-gray-100"
             aria-label="Delete reminder"
           >

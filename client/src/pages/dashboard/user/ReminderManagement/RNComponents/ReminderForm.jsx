@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { XIcon } from "lucide-react";
-import { Reminder, Priority, useReminders } from "../RNContext/ReminderContext";
-import { useNotifications } from "../RNContext/NotificationContext";
+import { useReminders } from "../RNContext/ReminderContext";
+
+const API_URL = "http://localhost:5001/api";
 
 const ReminderForm = ({ editingId, onClose }) => {
-  const { addReminder, updateReminder, getReminder } = useReminders();
-  const { addNotification } = useNotifications();
+  const { addReminder, updateReminder } = useReminders();
   const [tagsInput, setTagsInput] = useState("");
   const [formData, setFormData] = useState({
     title: "",
@@ -21,15 +22,20 @@ const ReminderForm = ({ editingId, onClose }) => {
     tags: [],
   });
 
+  const [errors, setErrors] = useState({});
+
+  // Fetch reminder if editing
   useEffect(() => {
     if (editingId) {
-      const reminder = getReminder(editingId);
-      if (reminder) {
-        setFormData({ ...reminder });
-        setTagsInput(reminder.tags.join(", "));
-      }
+      axios
+        .get(`${API_URL}/reminders/${editingId}`)
+        .then((response) => {
+          setFormData(response.data);
+          setTagsInput(response.data.tags.join(", "));
+        })
+        .catch((error) => console.error("Error fetching reminder:", error));
     }
-  }, [editingId, getReminder]);
+  }, [editingId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,7 +49,42 @@ const ReminderForm = ({ editingId, onClose }) => {
     setTagsInput(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  // Validate the form
+  const validateForm = () => {
+    const currentErrors = {};
+    const { title, date, time } = formData;
+
+    // Title validation
+    if (!title.trim()) currentErrors.title = "Title is required";
+
+    // Date validation (must be today or in the future)
+    const today = new Date().toISOString().split("T")[0];
+    if (date < today)
+      currentErrors.date = "Date must be today or in the future";
+
+    // Time validation based on date selection
+    if (date === today) {
+      const now = new Date();
+      const selectedTime = new Date(`${date}T${time}`);
+      if (selectedTime <= now) {
+        currentErrors.time = "Time must be in the future for today's date";
+      }
+    }
+
+    // Tags validation (if any tags are entered, make sure they are non-empty)
+    const tagsArray = tagsInput
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter((tag) => tag.length > 0);
+    if (tagsArray.length === 0)
+      currentErrors.tags = "At least one tag is required";
+
+    setErrors(currentErrors);
+
+    return Object.keys(currentErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const processedTags = tagsInput
       .split(",")
@@ -51,22 +92,31 @@ const ReminderForm = ({ editingId, onClose }) => {
       .filter((tag) => tag.length > 0);
     const reminderWithTags = { ...formData, tags: processedTags };
 
-    if (editingId) {
-      updateReminder({ ...reminderWithTags, id: editingId });
-      addNotification({
-        title: "Reminder Updated",
-        message: `"${formData.title}" has been updated.`,
-        type: "system",
-      });
-    } else {
-      addReminder(reminderWithTags);
-      addNotification({
-        title: "Reminder Created",
-        message: `"${formData.title}" has been added to your reminders.`,
-        type: "system",
-      });
+    if (!validateForm()) return;
+
+    try {
+      if (editingId) {
+        // Update existing reminder
+        const response = await axios.put(
+          `${API_URL}/reminders/${editingId}`,
+          reminderWithTags
+        );
+        updateReminder(response.data); // Update in context
+        alert("Reminder updated successfully!");
+      } else {
+        // Create new reminder
+        const response = await axios.post(
+          `${API_URL}/reminders`,
+          reminderWithTags
+        );
+        addReminder(response.data); // Add to context
+        alert("Reminder created successfully!");
+      }
+      onClose();
+    } catch (error) {
+      console.error("Error saving reminder:", error);
+      alert("Failed to save reminder.");
     }
-    onClose();
   };
 
   return (
@@ -100,6 +150,9 @@ const ReminderForm = ({ editingId, onClose }) => {
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            {errors.title && (
+              <p className="text-red-500 text-xs">{errors.title}</p>
+            )}
           </div>
           <div className="mb-4">
             <label
@@ -134,6 +187,9 @@ const ReminderForm = ({ editingId, onClose }) => {
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              {errors.date && (
+                <p className="text-red-500 text-xs">{errors.date}</p>
+              )}
             </div>
             <div>
               <label
@@ -151,6 +207,9 @@ const ReminderForm = ({ editingId, onClose }) => {
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
+              {errors.time && (
+                <p className="text-red-500 text-xs">{errors.time}</p>
+              )}
             </div>
           </div>
           <div className="mb-4">
@@ -165,6 +224,7 @@ const ReminderForm = ({ editingId, onClose }) => {
               name="priority"
               value={formData.priority}
               onChange={handleChange}
+              required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="low">Low</option>
@@ -185,9 +245,13 @@ const ReminderForm = ({ editingId, onClose }) => {
               name="tags"
               value={tagsInput}
               onChange={handleTagsChange}
+              required
               placeholder="work, personal, health"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            {errors.tags && (
+              <p className="text-red-500 text-xs">{errors.tags}</p>
+            )}
           </div>
           <div className="flex justify-end space-x-3">
             <button

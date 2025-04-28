@@ -1,24 +1,71 @@
-import { useState } from "react";
-import {
-  PlusIcon,
-  ArrowRightIcon,
-  CalendarIcon,
-  ClockIcon,
-  BellIcon,
-} from "lucide-react";
-import { Link } from "react-router-dom";
-import { useReminders } from "./RNContext/ReminderContext";
-import { useNotifications } from "./RNContext/NotificationContext";
+import { useState, useEffect } from "react";
+import axios from "axios"; // or use fetch
+import { PlusIcon, CalendarIcon, ClockIcon, BellIcon } from "lucide-react";
 import ReminderCard from "./RNComponents/ReminderCard";
 import ReminderForm from "./RNComponents/ReminderForm";
 import NotificationItem from "./RNComponents/NotificationItem";
 import DashboardLayout from "../../../../components/Common/Layout/DashboardLayout";
 
 const AddReminder = () => {
-  const { reminders } = useReminders();
-  const { notifications } = useNotifications();
+  const [reminders, setReminders] = useState([]);
   const [showReminderForm, setShowReminderForm] = useState(false);
   const [editingId, setEditingId] = useState(undefined);
+  const [notifications, setNotifications] = useState([]); // Assuming notifications data is also from API
+  const [selectedReminders, setSelectedReminders] = useState([]);
+
+  // Fetch reminders and notifications when the component mounts
+  useEffect(() => {
+    fetchReminders();
+    fetchNotifications();
+  }, []);
+
+  const fetchReminders = async () => {
+    try {
+      const response = await axios.get("http://localhost:5001/api/reminders/");
+      setReminders(response.data); // Set fetched reminders
+    } catch (error) {
+      console.error("Error fetching reminders:", error);
+    }
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      // Assuming you have a notifications endpoint too
+      const response = await axios.get(
+        "http://localhost:5001/api/notifications"
+      );
+      setNotifications(response.data);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
+
+  const handleEditReminder = (id) => {
+    setEditingId(id);
+    setShowReminderForm(true);
+  };
+
+  const toggleSelectReminder = (id) => {
+    setSelectedReminders((prevSelected) =>
+      prevSelected.includes(id)
+        ? prevSelected.filter((reminderId) => reminderId !== id)
+        : [...prevSelected, id]
+    );
+  };
+
+  const handleDeleteReminder = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5001/api/reminders/${id}`);
+      fetchReminders(); // Re-fetch reminders after deletion
+    } catch (error) {
+      console.error("Error deleting reminder:", error);
+    }
+  };
+
+  const closeForm = () => {
+    setShowReminderForm(false);
+    setEditingId(undefined);
+  };
 
   const today = new Date().toISOString().split("T")[0];
   const todayReminders = reminders.filter(
@@ -29,19 +76,8 @@ const AddReminder = () => {
   );
   const recentNotifications = notifications.slice(0, 3);
 
-  const handleEditReminder = (id) => {
-    setEditingId(id);
-    setShowReminderForm(true);
-  };
-
-  const closeForm = () => {
-    setShowReminderForm(false);
-    setEditingId(undefined);
-  };
-
   return (
     <div>
-      {" "}
       <DashboardLayout>
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
@@ -75,6 +111,7 @@ const AddReminder = () => {
                       key={reminder.id}
                       reminder={reminder}
                       onEdit={handleEditReminder}
+                      onDelete={handleDeleteReminder}
                     />
                   ))
                 ) : (
@@ -114,6 +151,7 @@ const AddReminder = () => {
                         key={reminder.id}
                         reminder={reminder}
                         onEdit={handleEditReminder}
+                        onDelete={handleDeleteReminder}
                       />
                     ))
                 ) : (
@@ -161,8 +199,13 @@ const AddReminder = () => {
               </div>
             </div>
           </div>
+
           {showReminderForm && (
-            <ReminderForm editingId={editingId} onClose={closeForm} />
+            <ReminderForm
+              editingId={editingId}
+              onClose={closeForm}
+              onSave={fetchReminders} // Refresh the reminders after saving
+            />
           )}
         </div>
       </DashboardLayout>

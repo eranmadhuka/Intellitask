@@ -1,18 +1,118 @@
-import React, { useState } from "react";
-import { PlusIcon, FilterIcon, CheckSquareIcon, TagIcon } from "lucide-react";
-import { useReminders } from "./RNContext/ReminderContext";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import {
+  PlusIcon,
+  FilterIcon,
+  CheckSquareIcon,
+  TagIcon,
+  TrashIcon,
+} from "lucide-react";
 import ReminderCard from "./RNComponents/ReminderCard";
 import ReminderForm from "./RNComponents/ReminderForm";
 import DashboardLayout from "../../../../components/Common/Layout/DashboardLayout";
+import alam from "../../../../assets/audio/ring.mp3";
 
 const MyReminders = () => {
-  const { reminders } = useReminders();
+  const [reminders, setReminders] = useState([]);
   const [showReminderForm, setShowReminderForm] = useState(false);
   const [editingId, setEditingId] = useState(undefined);
   const [sortBy, setSortBy] = useState("date-asc");
   const [filterBy, setFilterBy] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTag, setSelectedTag] = useState(null);
+  const [selectedReminders, setSelectedReminders] = useState([]);
+  const [reminderCount, setReminderCount] = useState(0);
+  const [activeReminder, setActiveReminder] = useState(null);
+  const alarmSound = new Audio(alam);
+
+  useEffect(() => {
+    fetchReminders();
+  }, []);
+
+  const fetchReminders = async () => {
+    try {
+      const response = await axios.get("http://localhost:5001/api/reminders/");
+      const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+      const todayReminders = response.data.filter(
+        (reminder) => reminder.date === today && reminder.completed === false
+      );
+      setReminders(todayReminders); // Set today's uncompleted reminders
+      setReminderCount(todayReminders.length); // Update reminder count
+    } catch (error) {
+      console.error("Error fetching today's reminders:", error);
+    }
+  };
+
+  const checkForUpcomingReminders = () => {
+    const now = new Date();
+
+    // Get the current local time in HH:mm format
+    const currentHours = now.getHours().toString().padStart(2, "0"); // Local hours
+    const currentMinutes = now.getMinutes().toString().padStart(2, "0"); // Local minutes
+    const currentTime = `${currentHours}:${currentMinutes}`;
+
+    console.log("Current Time:", currentTime); // For debugging
+
+    // Loop through all reminders and compare times
+    reminders.forEach((reminder) => {
+      if (reminder.time === currentTime && !reminder.completed) {
+        triggerAlarm(reminder); // Trigger the alarm if the time matches
+      }
+    });
+  };
+
+  const triggerAlarm = (reminder) => {
+    // Show the active reminder in the modal
+    setActiveReminder(reminder);
+
+    // Play the alarm sound (ensure path is correct)
+    alarmSound
+      .play()
+      .catch((error) => console.error("Error playing alarm:", error));
+  };
+
+  const toggleSelectReminder = (id) => {
+    setSelectedReminders((prevSelected) =>
+      prevSelected.includes(id)
+        ? prevSelected.filter((reminderId) => reminderId !== id)
+        : [...prevSelected, id]
+    );
+  };
+  const deleteSelectedReminders = async () => {
+    try {
+      await Promise.all(
+        selectedReminders.map((id) =>
+          axios.delete(`http://localhost:5001/api/reminders/${id}`)
+        )
+      );
+      fetchReminders(); // Refresh reminders after deletion
+      setSelectedReminders([]); // Clear selected reminders
+    } catch (error) {
+      console.error("Error deleting reminders:", error);
+    }
+  };
+
+  const markAsDone = async () => {
+    try {
+      await Promise.all(
+        selectedReminders.map((id) =>
+          axios.patch(`http://localhost:5001/api/reminders/${id}/completed`, {
+            completed: true,
+          })
+        )
+      );
+      fetchReminders(); // Refresh reminders after marking as done
+      setSelectedReminders([]); // Clear selected reminders
+    } catch (error) {
+      console.error("Error marking reminders as done:", error);
+    }
+  };
+
+  // Handle CRUD operation completion
+  const handleCRUDComplete = () => {
+    fetchReminders(); // Auto-refresh reminders
+    closeForm(); // Close the form after completion
+  };
 
   const handleEditReminder = (id) => {
     setEditingId(id);
@@ -69,31 +169,56 @@ const MyReminders = () => {
     }
   });
 
+  useEffect(() => {
+    console.log("Checking for upcoming reminders every minute"); // Debug log
+    const interval = setInterval(() => {
+      checkForUpcomingReminders(); // Check for upcoming reminders every minute
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [reminders]);
+
+  const closeAlarm = async () => {
+    if (activeReminder) {
+      try {
+        // Mark the reminder as completed (set completed to true)
+        await axios.patch(
+          `http://localhost:5001/api/reminders/${activeReminder._id}/completed`,
+          { completed: true }
+        );
+
+        // Refresh reminders to update the state
+        fetchReminders();
+        //alarmSound.pause();
+      } catch (error) {
+        console.error("Error marking reminder as completed:", error);
+      }
+
+      // Close the active reminder modal
+      setActiveReminder(null);
+    }
+  };
+
   return (
     <div>
       <DashboardLayout>
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-            <h1 className="text-2xl font-bold text-gray-800">Reminders</h1>
-            <button
-              onClick={() => setShowReminderForm(true)}
-              className="mt-4 md:mt-0 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              <PlusIcon className="w-4 h-4 mr-2" /> New Reminder
-            </button>
+            <h1 className="text-2xl font-bold text-black">Reminders</h1>
           </div>
 
-          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 flex items-center space-x-4">
             <input
               type="text"
               placeholder="Search reminders..."
-              className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-md"
+              className="flex-grow pl-4 pr-10 py-2 border border-gray-300 rounded-md"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <select
               value={filterBy}
               onChange={(e) => setFilterBy(e.target.value)}
+              className="px-3 py-2 border rounded-md"
             >
               <option value="all">All</option>
               <option value="active">Active</option>
@@ -106,13 +231,37 @@ const MyReminders = () => {
 
           <div className="space-y-4">
             {sortedReminders.length > 0 ? (
-              sortedReminders.map((reminder) => (
-                <ReminderCard
-                  key={reminder.id}
-                  reminder={reminder}
-                  onEdit={handleEditReminder}
-                />
-              ))
+              <>
+                {selectedReminders.length > 0 && (
+                  <div className="flex space-x-4 mb-4">
+                    <button
+                      onClick={deleteSelectedReminders}
+                      className="bg-red-600 text-white px-4 py-2 rounded-md flex items-center"
+                    >
+                      <TrashIcon className="w-4 h-4 mr-2" />
+                      Delete
+                    </button>
+
+                    <button
+                      onClick={markAsDone} // Function to mark selected reminders as done
+                      className="bg-green-600 text-white px-4 py-2 rounded-md flex items-center"
+                    >
+                      <CheckSquareIcon className="w-4 h-4 mr-2" />
+                      Done
+                    </button>
+                  </div>
+                )}
+
+                {sortedReminders.map((reminder) => (
+                  <ReminderCard
+                    key={reminder._id}
+                    reminder={reminder}
+                    onEdit={handleEditReminder}
+                    onToggleSelect={toggleSelectReminder}
+                    isSelected={selectedReminders.includes(reminder._id)} // Pass isSelected for selection state
+                  />
+                ))}
+              </>
             ) : (
               <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
                 <CheckSquareIcon className="w-8 h-8 text-gray-400" />
@@ -126,17 +275,38 @@ const MyReminders = () => {
                   onClick={() => setShowReminderForm(true)}
                   className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
                 >
-                  <PlusIcon className="w-4 h-4 mr-2" /> New Reminder
+                  New Reminder
                 </button>
               </div>
             )}
           </div>
 
           {showReminderForm && (
-            <ReminderForm editingId={editingId} onClose={closeForm} />
+            <ReminderForm
+              editingId={editingId}
+              onClose={closeForm}
+              onCRUDComplete={handleCRUDComplete} // Refresh after form submission
+            />
           )}
         </div>
       </DashboardLayout>
+
+      {activeReminder && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg text-center">
+            <h3 className="text-xl font-bold mb-4">
+              Reminder: {activeReminder.title}
+            </h3>
+            <p className="mb-4">It's time for this reminder!</p>
+            <button
+              onClick={closeAlarm}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            >
+              Close Alarm
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
