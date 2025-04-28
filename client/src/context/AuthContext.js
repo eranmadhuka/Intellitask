@@ -16,32 +16,14 @@ export const AuthProvider = ({ children }) => {
             }
         }
 
-        setLoading(false); // Set loading to false after attempting to fetch data
+        setLoading(false); 
     }, []);
 
-    // const login = (userData) => {
-    //     console.log("Logging in user:", userData); // Debugging: Check the user data
-    //     localStorage.setItem('user', JSON.stringify(userData));
-    //     if (userData.token) {
-    //         localStorage.setItem('token', userData.token);
-    //     }
-    //     setCurrentUser(userData);
-    // };
-
     const login = (userData) => {
-        console.log("Logging in user:", userData); // Debugging
-
-        // Check for the correct fields in userData
-        if (!userData.id || !userData.token) {
-            console.error("Invalid user data:", userData);
-            return;
-        }
-
-        // Save user data and token to localStorage
         localStorage.setItem('user', JSON.stringify(userData));
-        localStorage.setItem('token', userData.token);
-
-        // Update the currentUser state
+        if (userData.token) {
+            localStorage.setItem('token', userData.token);
+        }
         setCurrentUser(userData);
     };
 

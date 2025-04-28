@@ -29,24 +29,24 @@ const Login = () => {
                 email,
                 password,
             });
+            
 
-            const { token, user: userData } = data;
+            const { user: userData, token, additionalData } = data;
 
             if (!userData?.role) {
                 throw new Error('Invalid user data received');
             }
 
-            // Save user data and token to localStorage
             localStorage.setItem('user', JSON.stringify(userData));
             localStorage.setItem('token', token);
+            if (additionalData) {
+                localStorage.setItem('additionalData', JSON.stringify(additionalData));
+            }
 
-            // Call the login function from AuthContext
-            login({ ...userData, token });
+            login(userData, additionalData);
 
             toast.success('Login successful! Redirecting...');
-            navigate(`/${userData.role}/dashboard`, { replace: true });
         } catch (error) {
-            console.error("Login error:", error);
             toast.error(error.response?.data?.message || 'Login failed');
         } finally {
             setLoading(false);
@@ -99,7 +99,7 @@ const Login = () => {
                                 Remember me
                             </label>
                         </div>
-                        <a href="#" className="text-sm text-blue-600 hover:underline dark:text-blue-400">
+                        <a href="/forgot-password" className="text-sm text-blue-600 hover:underline dark:text-blue-400">
                             Forgot password?
                         </a>
                     </div>
