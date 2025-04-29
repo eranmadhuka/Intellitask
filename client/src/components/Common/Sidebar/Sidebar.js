@@ -160,21 +160,25 @@ const navigation = {
       ],
     },
     {
-      name: 'Reminders & Alerts',
+      name: "Reminders & Alerts",
       icon: <HiBellAlert />,
       subMenu: [
-        { name: 'Upcoming Deadlines', path: '/user/dashboard/' },
-        { name: 'Smart Categorization', path: '/user/dashboard/' },
-        { name: 'Notification Settings', path: '/user/dashboard/' },
-      ],
-    },
-    {
-      name: 'Progress & Insights',
-      icon: <FaBarsProgress />,
-      subMenu: [
-        { name: 'Productivity Stats', path: '/user/dashboard/' },
-        { name: 'Time Spent on Tasks', path: '/user/dashboard/' },
-        { name: 'Task Completion Rate', path: '/user/dashboard/' },
+
+        { name: "Upcoming Reminders", path: "/user/dashboard/myReminders" },
+        { name: "Manage Reminders", path: "/user/dashboard/addReminder" },
+        {
+          name: "Notifications History",
+          path: "/user/dashboard/notifications",
+        },
+        {
+          name: "Notifications Settings",
+          path: "/user/dashboard/settings",
+        },
+
+        // { name: "Upcoming Deadlines", path: "/user/dashboard/" },
+        // { name: "Smart Categorization", path: "/user/dashboard/" },
+        // { name: "Notification Settings", path: "/user/dashboard/" },
+
       ],
     },
     {

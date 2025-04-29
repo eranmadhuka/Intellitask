@@ -12,6 +12,7 @@
     "axios": "^1.8.4",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
+    "lucide-react": "^0.503.0",
     "postcss": "^8.5.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -20,6 +21,7 @@
     "react-scripts": "5.0.1",
     "react-toastify": "^11.0.5",
     "react-toggle-dark-mode": "^1.1.1",
+    "sonner": "^2.0.3",
     "web-vitals": "^2.1.4",
     "xlsx": "^0.18.5"
   },

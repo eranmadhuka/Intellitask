@@ -2,8 +2,7 @@ import React, { useEffect, useState, createContext, useContext } from "react";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 
-const API_URL = "http://localhost:3001/api/reminders"; // Set your backend API URL here
-
+const API_URL = "http://localhost:3001/api/reminders";
 const ReminderContext = createContext(undefined);
 
 export const useReminders = () => {
