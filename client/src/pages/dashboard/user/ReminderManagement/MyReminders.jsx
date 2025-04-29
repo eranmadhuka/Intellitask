@@ -20,6 +20,20 @@ const MyReminders = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTag, setSelectedTag] = useState(null);
   const [selectedReminders, setSelectedReminders] = useState([]);
+  const [activeReminder, setActiveReminder] = useState(null);
+
+  const checkForUpcomingReminders = () => {
+    const now = new Date();
+    const upcomingReminder = reminders.find((reminder) => {
+      const reminderTime = new Date(reminder.date + "T" + reminder.time);
+      return reminderTime > now && reminderTime - now <= 5 * 60 * 1000; // within next 5 minutes
+    });
+
+    if (upcomingReminder) {
+      setActiveReminder(upcomingReminder);
+      // Optionally: Play alarm sound here if you want
+    }
+  };
 
   useEffect(() => {
     fetchReminders();
@@ -171,7 +185,7 @@ const MyReminders = () => {
       <DashboardLayout>
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-            <h1 className="text-2xl font-bold text-black">Reminders</h1>
+            <h1 className="text-2xl font-bold text-white">Reminders</h1>
           </div>
 
           <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 flex items-center space-x-4">
