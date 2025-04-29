@@ -21,7 +21,7 @@ const AddReminder = () => {
 
   const fetchReminders = async () => {
     try {
-      const response = await axios.get("http://localhost:5001/api/reminders/");
+      const response = await axios.get("http://localhost:3001/api/reminders/");
       setReminders(response.data); // Set fetched reminders
     } catch (error) {
       console.error("Error fetching reminders:", error);
@@ -32,7 +32,7 @@ const AddReminder = () => {
     try {
       // Assuming you have a notifications endpoint too
       const response = await axios.get(
-        "http://localhost:5001/api/notifications"
+        "http://localhost:3001/api/notifications"
       );
       setNotifications(response.data);
     } catch (error) {
@@ -55,7 +55,7 @@ const AddReminder = () => {
 
   const handleDeleteReminder = async (id) => {
     try {
-      await axios.delete(`http://localhost:5001/api/reminders/${id}`);
+      await axios.delete(`http://localhost:3001/api/reminders/${id}`);
       fetchReminders(); // Re-fetch reminders after deletion
     } catch (error) {
       console.error("Error deleting reminder:", error);

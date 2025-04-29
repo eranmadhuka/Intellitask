@@ -3,7 +3,7 @@ import axios from "axios";
 import { XIcon } from "lucide-react";
 import { useReminders } from "../RNContext/ReminderContext";
 
-const API_URL = "http://localhost:5001/api";
+const API_URL = "http://localhost:3001/api";
 
 const ReminderForm = ({ editingId, onClose }) => {
   const { addReminder, updateReminder } = useReminders();
