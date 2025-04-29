@@ -31,7 +31,7 @@ const MyReminders = () => {
 
   const fetchReminders = async () => {
     try {
-      const response = await axios.get("http://localhost:5001/api/reminders/");
+      const response = await axios.get("http://localhost:3001/api/reminders/");
       const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
       const todayReminders = response.data.filter(
         (reminder) => reminder.date === today && reminder.completed === false
@@ -82,7 +82,7 @@ const MyReminders = () => {
     try {
       await Promise.all(
         selectedReminders.map((id) =>
-          axios.delete(`http://localhost:5001/api/reminders/${id}`)
+          axios.delete(`http://localhost:3001/api/reminders/${id}`)
         )
       );
       fetchReminders(); // Refresh reminders after deletion
@@ -96,7 +96,7 @@ const MyReminders = () => {
     try {
       await Promise.all(
         selectedReminders.map((id) =>
-          axios.patch(`http://localhost:5001/api/reminders/${id}/completed`, {
+          axios.patch(`http://localhost:3001/api/reminders/${id}/completed`, {
             completed: true,
           })
         )
@@ -183,7 +183,7 @@ const MyReminders = () => {
       try {
         // Mark the reminder as completed (set completed to true)
         await axios.patch(
-          `http://localhost:5001/api/reminders/${activeReminder._id}/completed`,
+          `http://localhost:3001/api/reminders/${activeReminder._id}/completed`,
           { completed: true }
         );
 

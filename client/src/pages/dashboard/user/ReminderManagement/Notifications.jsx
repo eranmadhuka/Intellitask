@@ -13,7 +13,7 @@ const Notifications = () => {
 
   const fetchCompletedReminders = async () => {
     try {
-      const response = await axios.get("http://localhost:5001/api/reminders/");
+      const response = await axios.get("http://localhost:3001/api/reminders/");
       const completed = response.data.filter(
         (reminder) => reminder.completed === true
       );
@@ -26,7 +26,7 @@ const Notifications = () => {
   // Handle reminder delete
   const handleDeleteReminder = async (id) => {
     try {
-      await axios.delete(`http://localhost:5001/api/reminders/${id}`);
+      await axios.delete(`http://localhost:3001/api/reminders/${id}`);
       setCompletedReminders((prevReminders) =>
         prevReminders.filter((reminder) => reminder._id !== id)
       );

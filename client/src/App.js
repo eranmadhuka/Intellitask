@@ -20,32 +20,19 @@ import Contact from "./pages/Contact";
 import AddTask from "./pages/dashboard/user/TaskManagement/AddTask";
 import MyTasks from "./pages/dashboard/user/TaskManagement/MyTasks";
 
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-import Home from "./pages/Home";
-import NotFound from "./pages/NotFound";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
 import { ForgotPassword } from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import AddUser from "./pages/dashboard/admin/AddUser";
 import EditUser from "./pages/dashboard/admin/EditUser";
 import UserDetails from "./pages/dashboard/admin/UserDetails";
-
-// Admin Dashboard components
 import Dashboard from "./pages/dashboard/admin/Dashboard";
-
-// User Dashboard components
-
-// Student Dashboard components
-import UserDashboard from "./pages/dashboard/user/userDashboard";
-
 import UserDashboard from "./pages/dashboard/user/userDashboard";
 import UserProfile from "./pages/dashboard/admin/UserProfile";
 
-// PrivateRoute component ensures that only authenticated users can access certain routes
+import AddReminder from "./pages/dashboard/user/ReminderManagement/AddReminder";
+import MyReminders from "./pages/dashboard/user/ReminderManagement/MyReminders";
+// import RemindersHistory from "./pages/dashboard/user/ReminderManagement/RemindersHistory";
+import Notifications from "./pages/dashboard/user/ReminderManagement/Notifications";
 
 function PrivateRoute({ children }) {
   const navigate = useNavigate(); // Hook for navigation
@@ -58,9 +45,6 @@ function PrivateRoute({ children }) {
 
   if (!currentUser) {
     return navigate("/login", { replace: true });
-    return navigate("/login", { replace: true });
-
-    return navigate("/login", { replace: true }); // Redirect to login if user is not authenticated
   }
 
   return children; // Render children if user is authenticated
@@ -95,7 +79,7 @@ function PublicLayout() {
 function AdminDashboardLayout() {
   return (
     <Routes>
-      <Route index element={<Dashboard />} /> {/* Admin dashboard main page */}
+      <Route index element={<Dashboard />} />
       <Route path="/add" element={<AddUser />} />
       <Route path="/edit/:id" element={<EditUser />} />
       <Route path="/users" element={<UserDetails />} />
@@ -109,11 +93,15 @@ function UserDashboardLayout() {
   return (
     <Routes>
       <Route index element={<UserDashboard />} />
-
       <Route path="/addtask" element={<AddTask />} />
       <Route path="/mytasks" element={<MyTasks />} />
-
       <Route path="/profile" element={<UserProfile />} />
+
+      <Route path="/addReminder" element={<AddReminder />} />
+      <Route path="/myReminders" element={<MyReminders />} />
+      <Route path="/myReminders" element={<MyReminders />} />
+      {/* <Route path="/remindersHistory" element={<RemindersHistory />} /> */}
+      <Route path="/notifications" element={<Notifications />} />
     </Routes>
   );
 }
@@ -122,11 +110,7 @@ function UserDashboardLayout() {
 function App() {
   return (
     <AuthProvider>
-      {" "}
-      {/* Provides authentication context */}
       <Router>
-        {" "}
-        {/* Enables client-side routing */}
         <Routes>
           {/* Public Routes */}
           <Route path="/*" element={<PublicLayout />} />

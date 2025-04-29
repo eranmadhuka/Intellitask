@@ -331,8 +331,5 @@ const SmartPrioritization = ({ onAddTask }) => {
     );
 };
 
-<<<<<<< Updated upstream
 export default SmartPrioritization;
-=======
-export default SmartPrioritization;
->>>>>>> Stashed changes
+

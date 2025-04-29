@@ -30,7 +30,7 @@ const DashboardLayout = ({ children }) => {
 
   const fetchReminders = async () => {
     try {
-      const response = await axios.get("http://localhost:5001/api/reminders/");
+      const response = await axios.get("http://localhost:3001/api/reminders/");
       const today = new Date().toISOString().split("T")[0]; // Today's date in YYYY-MM-DD format
       const todayReminders = response.data.filter(
         (reminder) => reminder.date === today && reminder.completed === false
@@ -54,9 +54,8 @@ const DashboardLayout = ({ children }) => {
       <Sidebar isSidebarOpen={isSidebarOpen} reminderCount={reminderCount} />
 
       <main
-        className={`pt-16 min-h-screen dark:bg-gray-900 ${
-          isSidebarOpen ? "lg:ml-64" : "lg:ml-20"
-        }`}
+        className={`pt-16 min-h-screen dark:bg-gray-900 ${isSidebarOpen ? "lg:ml-64" : "lg:ml-20"
+          }`}
       >
         <div className="p-6">
           <div className="rounded-lg p-6 min-h-[calc(100vh-theme(spacing.32))] dark:bg-gray-900">
@@ -76,5 +75,4 @@ const DashboardLayout = ({ children }) => {
 
 export default DashboardLayout;
 
-export default DashboardLayout;
 
