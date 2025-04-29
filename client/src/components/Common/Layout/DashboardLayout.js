@@ -54,8 +54,9 @@ const DashboardLayout = ({ children }) => {
       <Sidebar isSidebarOpen={isSidebarOpen} reminderCount={reminderCount} />
 
       <main
-        className={`pt-16 min-h-screen dark:bg-gray-900 ${isSidebarOpen ? "lg:ml-64" : "lg:ml-20"
-          }`}
+        className={`pt-16 min-h-screen dark:bg-gray-900 ${
+          isSidebarOpen ? "lg:ml-64" : "lg:ml-20"
+        }`}
       >
         <div className="p-6">
           <div className="rounded-lg p-6 min-h-[calc(100vh-theme(spacing.32))] dark:bg-gray-900">
@@ -72,7 +73,4 @@ const DashboardLayout = ({ children }) => {
   );
 };
 
-
 export default DashboardLayout;
-
-

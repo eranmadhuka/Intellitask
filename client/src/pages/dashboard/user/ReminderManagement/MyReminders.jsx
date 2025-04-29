@@ -10,7 +10,6 @@ import {
 import ReminderCard from "./RNComponents/ReminderCard";
 import ReminderForm from "./RNComponents/ReminderForm";
 import DashboardLayout from "../../../../components/Common/Layout/DashboardLayout";
-import alam from "../../../../assets/audio/ring.mp3";
 
 const MyReminders = () => {
   const [reminders, setReminders] = useState([]);
@@ -21,9 +20,6 @@ const MyReminders = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTag, setSelectedTag] = useState(null);
   const [selectedReminders, setSelectedReminders] = useState([]);
-  const [reminderCount, setReminderCount] = useState(0);
-  const [activeReminder, setActiveReminder] = useState(null);
-  const alarmSound = new Audio(alam);
 
   useEffect(() => {
     fetchReminders();
@@ -34,41 +30,12 @@ const MyReminders = () => {
       const response = await axios.get("http://localhost:3001/api/reminders/");
       const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
       const todayReminders = response.data.filter(
-        (reminder) => reminder.date === today && reminder.completed === false
+        (reminder) => reminder.date === today && reminder.completed === false // Filter for today's date and completed = false
       );
       setReminders(todayReminders); // Set today's uncompleted reminders
-      setReminderCount(todayReminders.length); // Update reminder count
     } catch (error) {
       console.error("Error fetching today's reminders:", error);
     }
-  };
-
-  const checkForUpcomingReminders = () => {
-    const now = new Date();
-
-    // Get the current local time in HH:mm format
-    const currentHours = now.getHours().toString().padStart(2, "0"); // Local hours
-    const currentMinutes = now.getMinutes().toString().padStart(2, "0"); // Local minutes
-    const currentTime = `${currentHours}:${currentMinutes}`;
-
-    console.log("Current Time:", currentTime); // For debugging
-
-    // Loop through all reminders and compare times
-    reminders.forEach((reminder) => {
-      if (reminder.time === currentTime && !reminder.completed) {
-        triggerAlarm(reminder); // Trigger the alarm if the time matches
-      }
-    });
-  };
-
-  const triggerAlarm = (reminder) => {
-    // Show the active reminder in the modal
-    setActiveReminder(reminder);
-
-    // Play the alarm sound (ensure path is correct)
-    alarmSound
-      .play()
-      .catch((error) => console.error("Error playing alarm:", error));
   };
 
   const toggleSelectReminder = (id) => {
@@ -290,23 +257,6 @@ const MyReminders = () => {
           )}
         </div>
       </DashboardLayout>
-
-      {activeReminder && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg text-center">
-            <h3 className="text-xl font-bold mb-4">
-              Reminder: {activeReminder.title}
-            </h3>
-            <p className="mb-4">It's time for this reminder!</p>
-            <button
-              onClick={closeAlarm}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-            >
-              Close Alarm
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
