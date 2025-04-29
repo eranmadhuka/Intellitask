@@ -10,7 +10,6 @@ import {
 import ReminderCard from "./RNComponents/ReminderCard";
 import ReminderForm from "./RNComponents/ReminderForm";
 import DashboardLayout from "../../../../components/Common/Layout/DashboardLayout";
-import alam from "../../../../assets/audio/ring.mp3";
 
 const MyReminders = () => {
   const [reminders, setReminders] = useState([]);
@@ -21,9 +20,20 @@ const MyReminders = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTag, setSelectedTag] = useState(null);
   const [selectedReminders, setSelectedReminders] = useState([]);
-  const [reminderCount, setReminderCount] = useState(0);
   const [activeReminder, setActiveReminder] = useState(null);
-  const alarmSound = new Audio(alam);
+
+  const checkForUpcomingReminders = () => {
+    const now = new Date();
+    const upcomingReminder = reminders.find((reminder) => {
+      const reminderTime = new Date(reminder.date + "T" + reminder.time);
+      return reminderTime > now && reminderTime - now <= 5 * 60 * 1000; // within next 5 minutes
+    });
+
+    if (upcomingReminder) {
+      setActiveReminder(upcomingReminder);
+      // Optionally: Play alarm sound here if you want
+    }
+  };
 
   useEffect(() => {
     fetchReminders();
@@ -34,41 +44,12 @@ const MyReminders = () => {
       const response = await axios.get("http://localhost:3001/api/reminders/");
       const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
       const todayReminders = response.data.filter(
-        (reminder) => reminder.date === today && reminder.completed === false
+        (reminder) => reminder.date === today && reminder.completed === false // Filter for today's date and completed = false
       );
       setReminders(todayReminders); // Set today's uncompleted reminders
-      setReminderCount(todayReminders.length); // Update reminder count
     } catch (error) {
       console.error("Error fetching today's reminders:", error);
     }
-  };
-
-  const checkForUpcomingReminders = () => {
-    const now = new Date();
-
-    // Get the current local time in HH:mm format
-    const currentHours = now.getHours().toString().padStart(2, "0"); // Local hours
-    const currentMinutes = now.getMinutes().toString().padStart(2, "0"); // Local minutes
-    const currentTime = `${currentHours}:${currentMinutes}`;
-
-    console.log("Current Time:", currentTime); // For debugging
-
-    // Loop through all reminders and compare times
-    reminders.forEach((reminder) => {
-      if (reminder.time === currentTime && !reminder.completed) {
-        triggerAlarm(reminder); // Trigger the alarm if the time matches
-      }
-    });
-  };
-
-  const triggerAlarm = (reminder) => {
-    // Show the active reminder in the modal
-    setActiveReminder(reminder);
-
-    // Play the alarm sound (ensure path is correct)
-    alarmSound
-      .play()
-      .catch((error) => console.error("Error playing alarm:", error));
   };
 
   const toggleSelectReminder = (id) => {
@@ -204,7 +185,7 @@ const MyReminders = () => {
       <DashboardLayout>
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-            <h1 className="text-2xl font-bold text-black">Reminders</h1>
+            <h1 className="text-2xl font-bold text-white">Reminders</h1>
           </div>
 
           <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 flex items-center space-x-4">
@@ -290,23 +271,6 @@ const MyReminders = () => {
           )}
         </div>
       </DashboardLayout>
-
-      {activeReminder && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg text-center">
-            <h3 className="text-xl font-bold mb-4">
-              Reminder: {activeReminder.title}
-            </h3>
-            <p className="mb-4">It's time for this reminder!</p>
-            <button
-              onClick={closeAlarm}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-            >
-              Close Alarm
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

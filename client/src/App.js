@@ -1,7 +1,11 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
-
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+} from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
 // Import necessary components
 
@@ -16,15 +20,14 @@ import Contact from "./pages/Contact";
 import AddTask from "./pages/dashboard/user/TaskManagement/AddTask";
 import MyTasks from "./pages/dashboard/user/TaskManagement/MyTasks";
 
-import { ForgotPassword } from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
-import AddUser from './pages/dashboard/admin/AddUser';
-import EditUser from './pages/dashboard/admin/EditUser';
-import UserDetails from './pages/dashboard/admin/UserDetails';
-import Dashboard from './pages/dashboard/admin/Dashboard';
+import { ForgotPassword } from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import AddUser from "./pages/dashboard/admin/AddUser";
+import EditUser from "./pages/dashboard/admin/EditUser";
+import UserDetails from "./pages/dashboard/admin/UserDetails";
+import Dashboard from "./pages/dashboard/admin/Dashboard";
 import UserDashboard from "./pages/dashboard/user/userDashboard";
-import UserProfile from './pages/dashboard/admin/UserProfile';
-
+import UserProfile from "./pages/dashboard/admin/UserProfile";
 
 import AddReminder from "./pages/dashboard/user/ReminderManagement/AddReminder";
 import MyReminders from "./pages/dashboard/user/ReminderManagement/MyReminders";
@@ -33,7 +36,6 @@ import Notifications from "./pages/dashboard/user/ReminderManagement/Notificatio
 
 function PrivateRoute({ children }) {
   const navigate = useNavigate(); // Hook for navigation
-
 
   const { currentUser, loading } = useAuth(); // Get user authentication status
 
@@ -66,8 +68,6 @@ function PublicLayout() {
 
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-
-
       </Routes>
       {/* Display Footer */}
       <Footer />
@@ -83,7 +83,7 @@ function AdminDashboardLayout() {
       <Route path="/add" element={<AddUser />} />
       <Route path="/edit/:id" element={<EditUser />} />
       <Route path="/users" element={<UserDetails />} />
-      <Route path='/profile' element={<UserProfile />} />
+      <Route path="/profile" element={<UserProfile />} />
     </Routes>
   );
 }
@@ -95,7 +95,7 @@ function UserDashboardLayout() {
       <Route index element={<UserDashboard />} />
       <Route path="/addtask" element={<AddTask />} />
       <Route path="/mytasks" element={<MyTasks />} />
-      <Route path='/profile' element={<UserProfile />} />
+      <Route path="/profile" element={<UserProfile />} />
 
       <Route path="/addReminder" element={<AddReminder />} />
       <Route path="/myReminders" element={<MyReminders />} />
@@ -141,4 +141,3 @@ function App() {
 }
 
 export default App;
-

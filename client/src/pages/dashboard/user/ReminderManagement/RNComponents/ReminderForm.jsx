@@ -22,8 +22,6 @@ const ReminderForm = ({ editingId, onClose }) => {
     tags: [],
   });
 
-  const [errors, setErrors] = useState({});
-
   // Fetch reminder if editing
   useEffect(() => {
     if (editingId) {
@@ -49,41 +47,6 @@ const ReminderForm = ({ editingId, onClose }) => {
     setTagsInput(e.target.value);
   };
 
-  // Validate the form
-  const validateForm = () => {
-    const currentErrors = {};
-    const { title, date, time } = formData;
-
-    // Title validation
-    if (!title.trim()) currentErrors.title = "Title is required";
-
-    // Date validation (must be today or in the future)
-    const today = new Date().toISOString().split("T")[0];
-    if (date < today)
-      currentErrors.date = "Date must be today or in the future";
-
-    // Time validation based on date selection
-    if (date === today) {
-      const now = new Date();
-      const selectedTime = new Date(`${date}T${time}`);
-      if (selectedTime <= now) {
-        currentErrors.time = "Time must be in the future for today's date";
-      }
-    }
-
-    // Tags validation (if any tags are entered, make sure they are non-empty)
-    const tagsArray = tagsInput
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag) => tag.length > 0);
-    if (tagsArray.length === 0)
-      currentErrors.tags = "At least one tag is required";
-
-    setErrors(currentErrors);
-
-    return Object.keys(currentErrors).length === 0;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const processedTags = tagsInput
@@ -91,8 +54,6 @@ const ReminderForm = ({ editingId, onClose }) => {
       .map((tag) => tag.trim())
       .filter((tag) => tag.length > 0);
     const reminderWithTags = { ...formData, tags: processedTags };
-
-    if (!validateForm()) return;
 
     try {
       if (editingId) {
@@ -150,9 +111,6 @@ const ReminderForm = ({ editingId, onClose }) => {
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            {errors.title && (
-              <p className="text-red-500 text-xs">{errors.title}</p>
-            )}
           </div>
           <div className="mb-4">
             <label
@@ -187,9 +145,6 @@ const ReminderForm = ({ editingId, onClose }) => {
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              {errors.date && (
-                <p className="text-red-500 text-xs">{errors.date}</p>
-              )}
             </div>
             <div>
               <label
@@ -207,9 +162,6 @@ const ReminderForm = ({ editingId, onClose }) => {
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              {errors.time && (
-                <p className="text-red-500 text-xs">{errors.time}</p>
-              )}
             </div>
           </div>
           <div className="mb-4">
@@ -224,7 +176,6 @@ const ReminderForm = ({ editingId, onClose }) => {
               name="priority"
               value={formData.priority}
               onChange={handleChange}
-              required
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="low">Low</option>
@@ -245,13 +196,9 @@ const ReminderForm = ({ editingId, onClose }) => {
               name="tags"
               value={tagsInput}
               onChange={handleTagsChange}
-              required
               placeholder="work, personal, health"
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            {errors.tags && (
-              <p className="text-red-500 text-xs">{errors.tags}</p>
-            )}
           </div>
           <div className="flex justify-end space-x-3">
             <button

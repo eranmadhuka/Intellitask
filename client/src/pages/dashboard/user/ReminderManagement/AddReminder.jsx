@@ -12,7 +12,6 @@ const AddReminder = () => {
   const [showReminderForm, setShowReminderForm] = useState(false);
   const [editingId, setEditingId] = useState(undefined);
   const [notifications, setNotifications] = useState([]); // Assuming notifications data is also from API
-  const [selectedReminders, setSelectedReminders] = useState([]);
 
   // Fetch reminders and notifications when the component mounts
   useEffect(() => {
@@ -44,14 +43,6 @@ const AddReminder = () => {
   const handleEditReminder = (id) => {
     setEditingId(id);
     setShowReminderForm(true);
-  };
-
-  const toggleSelectReminder = (id) => {
-    setSelectedReminders((prevSelected) =>
-      prevSelected.includes(id)
-        ? prevSelected.filter((reminderId) => reminderId !== id)
-        : [...prevSelected, id]
-    );
   };
 
   const handleDeleteReminder = async (id) => {
