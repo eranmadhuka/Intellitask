@@ -10,6 +10,7 @@ import {
 import ReminderCard from "./RNComponents/ReminderCard";
 import ReminderForm from "./RNComponents/ReminderForm";
 import DashboardLayout from "../../../../components/Common/Layout/DashboardLayout";
+import ReminderProvider from "./RNContext/ReminderContext";
 
 const MyReminders = () => {
   const [reminders, setReminders] = useState([]);
@@ -181,97 +182,99 @@ const MyReminders = () => {
   };
 
   return (
-    <div>
-      <DashboardLayout>
-        <div className="max-w-5xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-            <h1 className="text-2xl font-bold text-white">Reminders</h1>
-          </div>
+    <ReminderProvider>
+      <div>
+        <DashboardLayout>
+          <div className="max-w-5xl mx-auto">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+              <h1 className="text-2xl font-bold text-white">Reminders</h1>
+            </div>
 
-          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 flex items-center space-x-4">
-            <input
-              type="text"
-              placeholder="Search reminders..."
-              className="flex-grow pl-4 pr-10 py-2 border border-gray-300 rounded-md"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <select
-              value={filterBy}
-              onChange={(e) => setFilterBy(e.target.value)}
-              className="px-3 py-2 border rounded-md"
-            >
-              <option value="all">All</option>
-              <option value="active">Active</option>
-              <option value="completed">Completed</option>
-              <option value="high">High Priority</option>
-              <option value="medium">Medium Priority</option>
-              <option value="low">Low Priority</option>
-            </select>
-          </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 flex items-center space-x-4">
+              <input
+                type="text"
+                placeholder="Search reminders..."
+                className="flex-grow pl-4 pr-10 py-2 border border-gray-300 rounded-md"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <select
+                value={filterBy}
+                onChange={(e) => setFilterBy(e.target.value)}
+                className="px-3 py-2 border rounded-md"
+              >
+                <option value="all">All</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+                <option value="high">High Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="low">Low Priority</option>
+              </select>
+            </div>
 
-          <div className="space-y-4">
-            {sortedReminders.length > 0 ? (
-              <>
-                {selectedReminders.length > 0 && (
-                  <div className="flex space-x-4 mb-4">
-                    <button
-                      onClick={deleteSelectedReminders}
-                      className="bg-red-600 text-white px-4 py-2 rounded-md flex items-center"
-                    >
-                      <TrashIcon className="w-4 h-4 mr-2" />
-                      Delete
-                    </button>
+            <div className="space-y-4">
+              {sortedReminders.length > 0 ? (
+                <>
+                  {selectedReminders.length > 0 && (
+                    <div className="flex space-x-4 mb-4">
+                      <button
+                        onClick={deleteSelectedReminders}
+                        className="bg-red-600 text-white px-4 py-2 rounded-md flex items-center"
+                      >
+                        <TrashIcon className="w-4 h-4 mr-2" />
+                        Delete
+                      </button>
 
-                    <button
-                      onClick={markAsDone} // Function to mark selected reminders as done
-                      className="bg-green-600 text-white px-4 py-2 rounded-md flex items-center"
-                    >
-                      <CheckSquareIcon className="w-4 h-4 mr-2" />
-                      Done
-                    </button>
-                  </div>
-                )}
+                      <button
+                        onClick={markAsDone} // Function to mark selected reminders as done
+                        className="bg-green-600 text-white px-4 py-2 rounded-md flex items-center"
+                      >
+                        <CheckSquareIcon className="w-4 h-4 mr-2" />
+                        Done
+                      </button>
+                    </div>
+                  )}
 
-                {sortedReminders.map((reminder) => (
-                  <ReminderCard
-                    key={reminder._id}
-                    reminder={reminder}
-                    onEdit={handleEditReminder}
-                    onToggleSelect={toggleSelectReminder}
-                    isSelected={selectedReminders.includes(reminder._id)} // Pass isSelected for selection state
-                  />
-                ))}
-              </>
-            ) : (
-              <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
-                <CheckSquareIcon className="w-8 h-8 text-gray-400" />
-                <h3 className="text-lg font-medium text-gray-900">
-                  No reminders found
-                </h3>
-                <p className="mt-1 text-gray-500">
-                  Try changing your filters or search term
-                </p>
-                <button
-                  onClick={() => setShowReminderForm(true)}
-                  className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-                >
-                  New Reminder
-                </button>
-              </div>
+                  {sortedReminders.map((reminder) => (
+                    <ReminderCard
+                      key={reminder._id}
+                      reminder={reminder}
+                      onEdit={handleEditReminder}
+                      onToggleSelect={toggleSelectReminder}
+                      isSelected={selectedReminders.includes(reminder._id)} // Pass isSelected for selection state
+                    />
+                  ))}
+                </>
+              ) : (
+                <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+                  <CheckSquareIcon className="w-8 h-8 text-gray-400" />
+                  <h3 className="text-lg font-medium text-gray-900">
+                    No reminders found
+                  </h3>
+                  <p className="mt-1 text-gray-500">
+                    Try changing your filters or search term
+                  </p>
+                  <button
+                    onClick={() => setShowReminderForm(true)}
+                    className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                  >
+                    New Reminder
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {showReminderForm && (
+              <ReminderForm
+                editingId={editingId}
+                onClose={closeForm}
+                onCRUDComplete={handleCRUDComplete} // Refresh after form submission
+              />
             )}
           </div>
-
-          {showReminderForm && (
-            <ReminderForm
-              editingId={editingId}
-              onClose={closeForm}
-              onCRUDComplete={handleCRUDComplete} // Refresh after form submission
-            />
-          )}
-        </div>
-      </DashboardLayout>
-    </div>
+        </DashboardLayout>
+      </div>
+    </ReminderProvider>
   );
 };
 
