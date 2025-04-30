@@ -11,7 +11,7 @@ const AddReminder = () => {
   const [reminders, setReminders] = useState([]);
   const [showReminderForm, setShowReminderForm] = useState(false);
   const [editingId, setEditingId] = useState(undefined);
-  const [notifications, setNotifications] = useState([]); // Assuming notifications data is also from API
+  const [notifications, setNotifications] = useState([]);
 
   // Fetch reminders and notifications when the component mounts
   useEffect(() => {
@@ -46,9 +46,14 @@ const AddReminder = () => {
   };
 
   const handleDeleteReminder = async (id) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this reminder?"
+    );
+    if (!confirmed) return;
+
     try {
       await axios.delete(`http://localhost:3001/api/reminders/${id}`);
-      fetchReminders(); // Re-fetch reminders after deletion
+      fetchReminders();
     } catch (error) {
       console.error("Error deleting reminder:", error);
     }
@@ -105,6 +110,7 @@ const AddReminder = () => {
                         reminder={reminder}
                         onEdit={handleEditReminder}
                         onDelete={handleDeleteReminder}
+                        showCheckbox={false}
                       />
                     ))
                   ) : (

@@ -9,7 +9,14 @@ import {
 } from "lucide-react";
 import { Reminder, useReminders } from "../RNContext/ReminderContext";
 
-const ReminderCard = ({ reminder, onEdit, onToggleSelect, isSelected }) => {
+const ReminderCard = ({
+  reminder,
+  onEdit,
+  onDelete,
+  onToggleSelect,
+  isSelected,
+  showCheckbox = false,
+}) => {
   const { toggleComplete, deleteReminder } = useReminders();
 
   const formatDate = (dateStr) => {
@@ -43,12 +50,14 @@ const ReminderCard = ({ reminder, onEdit, onToggleSelect, isSelected }) => {
       <div className="flex items-start justify-between">
         {/* Checkbox for selection */}
         <div className="flex items-start space-x-3">
-          <input
-            type="checkbox"
-            checked={isSelected}
-            onChange={() => onToggleSelect(reminder._id)}
-            className="form-checkbox h-5 w-5 text-blue-600"
-          />
+          {showCheckbox && (
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={() => onToggleSelect(reminder._id)}
+              className="form-checkbox h-5 w-5 text-blue-600"
+            />
+          )}
           <div>
             <h3
               className={`text-lg font-medium ${
@@ -105,7 +114,7 @@ const ReminderCard = ({ reminder, onEdit, onToggleSelect, isSelected }) => {
             <EditIcon className="w-4 h-4" />
           </button>
           <button
-            onClick={() => deleteReminder(reminder._id)}
+            onClick={() => onDelete(reminder._id)}
             className="p-1 text-gray-400 hover:text-red-600 rounded-full hover:bg-gray-100"
             aria-label="Delete reminder"
           >

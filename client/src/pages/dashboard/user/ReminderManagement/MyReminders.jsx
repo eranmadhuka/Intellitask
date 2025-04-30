@@ -73,6 +73,19 @@ const MyReminders = () => {
       console.error("Error deleting reminders:", error);
     }
   };
+  const handleDeleteReminder = async (id) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this reminder?"
+    );
+    if (!confirmed) return;
+
+    try {
+      await axios.delete(`http://localhost:3001/api/reminders/${id}`);
+      fetchReminders();
+    } catch (error) {
+      console.error("Error deleting reminder:", error);
+    }
+  };
 
   const markAsDone = async () => {
     try {
@@ -241,7 +254,9 @@ const MyReminders = () => {
                       reminder={reminder}
                       onEdit={handleEditReminder}
                       onToggleSelect={toggleSelectReminder}
-                      isSelected={selectedReminders.includes(reminder._id)} // Pass isSelected for selection state
+                      onDelete={handleDeleteReminder}
+                      isSelected={selectedReminders.includes(reminder._id)}
+                      showCheckbox={true}
                     />
                   ))}
                 </>

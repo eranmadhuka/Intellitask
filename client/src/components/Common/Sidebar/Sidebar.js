@@ -75,7 +75,7 @@ const navigation = {
       name: "Reminders & Alerts",
       icon: <HiBellAlert />,
       subMenu: [
-        { name: "Upcoming Reminders", path: "/user/dashboard/myReminders" },
+        { name: "Today's Reminders", path: "/user/dashboard/myReminders" },
         { name: "Manage Reminders", path: "/user/dashboard/addReminder" },
         {
           name: "Notifications History ",
@@ -86,7 +86,7 @@ const navigation = {
           path: "/user/dashboard/settings",
         },
 
-        { name: "Upcoming Deadlines", path: "/user/dashboard/" },
+        { name: "Today's Deadlines", path: "/user/dashboard/" },
         { name: "Smart Categorization", path: "/user/dashboard/" },
         { name: "Notification Settings", path: "/user/dashboard/" },
       ],
@@ -163,7 +163,7 @@ const navigation = {
       name: "Reminders & Alerts",
       icon: <HiBellAlert />,
       subMenu: [
-        { name: "Upcoming Reminders", path: "/user/dashboard/myReminders" },
+        { name: "Today's Reminders", path: "/user/dashboard/myReminders" },
         { name: "Manage Reminders", path: "/user/dashboard/addReminder" },
         {
           name: "Notifications History",
@@ -289,6 +289,19 @@ const Sidebar = ({ isSidebarOpen, reminderCount }) => {
             ))}
           </ul>
         </nav>
+
+        {/* Reminder Count */}
+        {currentUser?.role === "user" && reminderCount > 0 && (
+          <div className="px-3 py-2 border-t dark:border-gray-700 dark:text-gray-200">
+            <div className="flex justify-between items-center p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <span className="font-medium">Reminders</span>
+              <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs">
+                {reminderCount}
+              </span>
+            </div>
+          </div>
+        )}
+
         <div className="px-3 py-2 border-t dark:border-gray-700 dark:text-gray-200">
           <button
             onClick={handleLogout}

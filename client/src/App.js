@@ -31,8 +31,9 @@ import UserProfile from "./pages/dashboard/admin/UserProfile";
 
 import AddReminder from "./pages/dashboard/user/ReminderManagement/AddReminder";
 import MyReminders from "./pages/dashboard/user/ReminderManagement/MyReminders";
-// import RemindersHistory from "./pages/dashboard/user/ReminderManagement/RemindersHistory";
+
 import Notifications from "./pages/dashboard/user/ReminderManagement/Notifications";
+import Settings from "./pages/dashboard/user/ReminderManagement/Settings";
 
 function PrivateRoute({ children }) {
   const navigate = useNavigate(); // Hook for navigation
@@ -100,8 +101,9 @@ function UserDashboardLayout() {
       <Route path="/addReminder" element={<AddReminder />} />
       <Route path="/myReminders" element={<MyReminders />} />
       <Route path="/myReminders" element={<MyReminders />} />
-      {/* <Route path="/remindersHistory" element={<RemindersHistory />} /> */}
+
       <Route path="/notifications" element={<Notifications />} />
+      <Route path="/Settings" element={<Settings />} />
     </Routes>
   );
 }
