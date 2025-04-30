@@ -6,14 +6,32 @@ import ReminderForm from "./RNComponents/ReminderForm";
 import NotificationItem from "./RNComponents/NotificationItem";
 import DashboardLayout from "../../../../components/Common/Layout/DashboardLayout";
 import ReminderProvider from "./RNContext/ReminderContext";
-
 const AddReminder = () => {
   const [reminders, setReminders] = useState([]);
   const [showReminderForm, setShowReminderForm] = useState(false);
   const [editingId, setEditingId] = useState(undefined);
   const [notifications, setNotifications] = useState([]);
+  const [countdown, setCountdown] = useState("");
 
-  // Fetch reminders and notifications when the component mounts
+  const today = new Date().toISOString().split("T")[0];
+
+  const todayReminders = reminders.filter(
+    (reminder) => reminder.date === today && !reminder.completed
+  );
+
+  const upcomingReminders = reminders.filter(
+    (reminder) => reminder.date > today && !reminder.completed
+  );
+
+  const nearestReminder = [...todayReminders, ...upcomingReminders]
+    .filter((r) => !r.completed)
+    .sort(
+      (a, b) =>
+        new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`)
+    )[0];
+
+  const recentNotifications = notifications.slice(0, 3);
+
   useEffect(() => {
     fetchReminders();
     fetchNotifications();
@@ -22,7 +40,7 @@ const AddReminder = () => {
   const fetchReminders = async () => {
     try {
       const response = await axios.get("http://localhost:3001/api/reminders/");
-      setReminders(response.data); // Set fetched reminders
+      setReminders(response.data);
     } catch (error) {
       console.error("Error fetching reminders:", error);
     }
@@ -30,7 +48,6 @@ const AddReminder = () => {
 
   const fetchNotifications = async () => {
     try {
-      // Assuming you have a notifications endpoint too
       const response = await axios.get(
         "http://localhost:3001/api/notifications"
       );
@@ -39,6 +56,34 @@ const AddReminder = () => {
       console.error("Error fetching notifications:", error);
     }
   };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!nearestReminder) {
+        setCountdown("");
+        return;
+      }
+
+      const target = new Date(
+        `${nearestReminder.date}T${nearestReminder.time}`
+      );
+      const now = new Date();
+      const diff = target - now;
+
+      if (diff <= 0) {
+        setCountdown("Due now");
+        return;
+      }
+
+      const hours = Math.floor(diff / 1000 / 60 / 60);
+      const minutes = Math.floor((diff / 1000 / 60) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      setCountdown(`${hours > 0 ? hours + "h " : ""}${minutes}m ${seconds}s`);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [nearestReminder]);
 
   const handleEditReminder = (id) => {
     setEditingId(id);
@@ -64,14 +109,7 @@ const AddReminder = () => {
     setEditingId(undefined);
   };
 
-  const today = new Date().toISOString().split("T")[0];
-  const todayReminders = reminders.filter(
-    (reminder) => reminder.date === today && !reminder.completed
-  );
-  const upcomingReminders = reminders.filter(
-    (reminder) => reminder.date > today && !reminder.completed
-  );
-  const recentNotifications = notifications.slice(0, 3);
+  // ... rest of your UI rendering
 
   return (
     <ReminderProvider>
@@ -174,7 +212,14 @@ const AddReminder = () => {
                   <div className="flex items-center">
                     <BellIcon className="w-5 h-5 text-amber-600 mr-2" />
                     <h2 className="font-semibold text-gray-800">
-                      Recent Notifications
+                      {nearestReminder ? (
+                        <>
+                          Next Reminder In:{" "}
+                          <span className="text-blue-600">{countdown}</span>
+                        </>
+                      ) : (
+                        "No Upcoming Reminder"
+                      )}
                     </h2>
                   </div>
                   <span className="bg-amber-100 text-amber-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
@@ -190,9 +235,11 @@ const AddReminder = () => {
                       />
                     ))
                   ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <BellIcon className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-                      <p>No notifications</p>
+                    <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                      <BellIcon className="w-12 h-12 text-gray-300 mb-4" />
+                      <p className="text-base font-medium text-gray-700">
+                        Get in touch 🎰
+                      </p>
                     </div>
                   )}
                 </div>

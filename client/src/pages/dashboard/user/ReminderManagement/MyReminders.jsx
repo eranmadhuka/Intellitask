@@ -10,6 +10,7 @@ import {
 import ReminderCard from "./RNComponents/ReminderCard";
 import ReminderForm from "./RNComponents/ReminderForm";
 import DashboardLayout from "../../../../components/Common/Layout/DashboardLayout";
+import alarmSoundFile from "../../../../assets/audio/ring.mp3";
 import ReminderProvider from "./RNContext/ReminderContext";
 
 const MyReminders = () => {
@@ -22,17 +23,27 @@ const MyReminders = () => {
   const [selectedTag, setSelectedTag] = useState(null);
   const [selectedReminders, setSelectedReminders] = useState([]);
   const [activeReminder, setActiveReminder] = useState(null);
+  const [alarmSound, setAlarmSound] = useState(null);
+
+  useEffect(() => {
+    const sound = new Audio(alarmSoundFile);
+    sound.loop = true; // repeat the sound until dismissed
+    setAlarmSound(sound);
+  }, []);
 
   const checkForUpcomingReminders = () => {
     const now = new Date();
     const upcomingReminder = reminders.find((reminder) => {
       const reminderTime = new Date(reminder.date + "T" + reminder.time);
-      return reminderTime > now && reminderTime - now <= 5 * 60 * 1000; // within next 5 minutes
+      return reminderTime > now && reminderTime - now <= 5 * 60 * 1000;
     });
 
-    if (upcomingReminder) {
+    if (
+      upcomingReminder &&
+      (!activeReminder || upcomingReminder._id !== activeReminder._id)
+    ) {
       setActiveReminder(upcomingReminder);
-      // Optionally: Play alarm sound here if you want
+      alarmSound?.play().catch((err) => console.warn("Autoplay blocked:", err));
     }
   };
 
@@ -165,31 +176,30 @@ const MyReminders = () => {
   });
 
   useEffect(() => {
-    console.log("Checking for upcoming reminders every minute"); // Debug log
+    console.log("Checking for upcoming reminders every 5 seconds");
     const interval = setInterval(() => {
-      checkForUpcomingReminders(); // Check for upcoming reminders every minute
-    }, 60000);
+      checkForUpcomingReminders(); // 🔔 checks more frequently
+    }, 5000); // ✅ 5000 ms = 5 seconds
 
     return () => clearInterval(interval);
-  }, [reminders]);
+  }, [reminders, activeReminder]); // track activeReminder to avoid duplicates
 
   const closeAlarm = async () => {
     if (activeReminder) {
       try {
-        // Mark the reminder as completed (set completed to true)
         await axios.patch(
           `http://localhost:3001/api/reminders/${activeReminder._id}/completed`,
           { completed: true }
         );
-
-        // Refresh reminders to update the state
         fetchReminders();
-        //alarmSound.pause();
       } catch (error) {
         console.error("Error marking reminder as completed:", error);
       }
 
-      // Close the active reminder modal
+      // 🛑 Stop the alarm
+      alarmSound?.pause();
+      alarmSound.currentTime = 0;
+
       setActiveReminder(null);
     }
   };
@@ -287,6 +297,28 @@ const MyReminders = () => {
               />
             )}
           </div>
+          {activeReminder && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm text-center">
+                <h2 className="text-xl font-semibold text-red-600 mb-2">
+                  Reminder Alert!
+                </h2>
+                <p className="text-lg font-medium">{activeReminder.title}</p>
+                <p className="text-sm text-gray-600">
+                  {activeReminder.description}
+                </p>
+                <p className="mt-2 text-sm text-gray-500">
+                  Due at {activeReminder.time} on {activeReminder.date}
+                </p>
+                <button
+                  onClick={closeAlarm}
+                  className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                >
+                  Mark as Done & Stop Alarm
+                </button>
+              </div>
+            </div>
+          )}
         </DashboardLayout>
       </div>
     </ReminderProvider>

@@ -86,30 +86,31 @@ const ReminderForm = ({ editingId, onClose, onSave }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const processedTags = tagsInput
       .split(",")
       .map((tag) => tag.trim())
       .filter((tag) => tag.length > 0);
     const reminderWithTags = { ...formData, tags: processedTags };
+
     if (!validateForm()) return;
+
     try {
+      let response;
       if (editingId) {
-        // Update existing reminder
-        const response = await axios.put(
+        response = await axios.put(
           `${API_URL}/reminders/${editingId}`,
           reminderWithTags
         );
-        updateReminder(response.data); // Update in context
+        updateReminder(response.data);
         alert("Reminder updated successfully!");
       } else {
-        // Create new reminder
-        const response = await axios.post(
-          `${API_URL}/reminders`,
-          reminderWithTags
-        );
-        addReminder(response.data); // Add to context
+        response = await axios.post(`${API_URL}/reminders`, reminderWithTags);
+        addReminder(response.data);
         alert("Reminder created successfully!");
       }
+
+      // Only close and refresh if axios call succeeded
       onSave();
       onClose();
     } catch (error) {
