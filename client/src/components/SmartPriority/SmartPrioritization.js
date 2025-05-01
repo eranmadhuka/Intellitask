@@ -13,7 +13,7 @@ const SmartPrioritization = ({ onAddTask }) => {
     const [lastSubmitTime, setLastSubmitTime] = useState(0);
     const [error, setError] = useState("");
 
-    const THROTTLE_TIMEOUT = 2000; // 2 seconds between submissions
+    const THROTTLE_TIMEOUT = 2000;
 
     const { currentUser, loading } = useAuth();
     const [task, setTask] = useState({

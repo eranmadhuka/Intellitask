@@ -1,0 +1,6 @@
+projectKey=IntelliTask
+serverUrl=http://localhost:9000
+serverVersion=25.4.0.105899
+dashboardUrl=http://localhost:9000/dashboard?id=IntelliTask
+ceTaskId=3634b213-89ca-4bf5-a963-e745b1f70e78
+ceTaskUrl=http://localhost:9000/api/ce/task?id=3634b213-89ca-4bf5-a963-e745b1f70e78

@@ -83,7 +83,7 @@ function AdminDashboardLayout() {
       <Route path="/add" element={<AddUser />} />
       <Route path="/edit/:id" element={<EditUser />} />
       <Route path="/users" element={<UserDetails />} />
-      <Route path="/profile" element={<UserProfile />} />
+      <Route path="/profile/:id" element={<UserProfile />} />
     </Routes>
   );
 }

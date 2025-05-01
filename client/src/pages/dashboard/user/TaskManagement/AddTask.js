@@ -28,6 +28,7 @@ const AddTask = ({ onAddTask }) => {
     const trimmedTitle = task.title.trim();
     const trimmedDescription = task.description.trim();
 
+    // Validation checks
     if (trimmedTitle.length < 3 || trimmedTitle.length > 40) {
       setError("Title must be between 3 and 40 characters.");
       return;
@@ -44,7 +45,7 @@ const AddTask = ({ onAddTask }) => {
       setError("Due date cannot be in the past.");
       return;
     }
-    if (!currentUser || !currentUser.token) {
+    if (!currentUser || !currentUser.id || !currentUser.token) {
       setError("You must be logged in to add a task.");
       return;
     }
@@ -58,7 +59,7 @@ const AddTask = ({ onAddTask }) => {
 
       setError("");
       if (typeof onAddTask === "function") {
-        onAddTask(response.data);
+        onAddTask(response.data.task); // Adjust based on backend response
       }
 
       setTask({
@@ -71,7 +72,8 @@ const AddTask = ({ onAddTask }) => {
 
       alert("Task added successfully!");
     } catch (error) {
-      setError(error.response?.data?.message || "Failed to add task");
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || "Failed to add task";
+      setError(errorMessage);
       console.error("Error adding task:", error);
     }
   };

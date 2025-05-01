@@ -5,7 +5,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001"; // Use env variable or fallback
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -25,31 +25,36 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const { data } = await axios.post(
-        `http://localhost:3001/api/auth/login`,
-        {
-          email,
-          password,
-        }
-      );
+      const { data } = await axios.post(`${API_URL}/api/auth/login`, {
+        email,
+        password,
+      });
 
-      const { user: userData, token, additionalData } = data;
+      // Log the response to debug
+      console.log("Login response:", data);
 
-      if (!userData?.role) {
-        throw new Error("Invalid user data received");
+      // Adjust based on actual backend response
+      const { user, token, additionalData } = data;
+
+      if (!user || !token || !user.role) {
+        throw new Error("Invalid user data or token received");
       }
 
-      localStorage.setItem("user", JSON.stringify(userData));
+      // Store in localStorage
+      localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", token);
       if (additionalData) {
         localStorage.setItem("additionalData", JSON.stringify(additionalData));
       }
 
-      login(userData, additionalData);
+      // Pass user data with token to login function
+      login({ ...user, token }, additionalData);
 
       toast.success("Login successful! Redirecting...");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Login failed");
+      const errorMessage = error.response?.data?.message || "Login failed";
+      toast.error(errorMessage);
+      console.error("Login error:", error);
     } finally {
       setLoading(false);
     }
@@ -121,9 +126,8 @@ const Login = () => {
           </div>
           <button
             type="submit"
-            className={`w-full px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800 ${
-              loading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            className={`w-full px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800 ${loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             disabled={loading}
           >
             {loading ? "Signing in..." : "Sign in"}

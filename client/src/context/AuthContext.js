@@ -8,28 +8,41 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
-        if (storedUser) {
+        const storedToken = localStorage.getItem('token');
+        if (storedUser && storedToken) {
             try {
-                setCurrentUser(JSON.parse(storedUser));
+                const parsedUser = JSON.parse(storedUser);
+                setCurrentUser({ ...parsedUser, token: storedToken });
             } catch (error) {
                 console.error("Failed to parse stored user:", error);
+                localStorage.removeItem('user');
+                localStorage.removeItem('token');
             }
         }
-
-        setLoading(false); 
+        setLoading(false);
     }, []);
 
-    const login = (userData) => {
-        localStorage.setItem('user', JSON.stringify(userData));
-        if (userData.token) {
-            localStorage.setItem('token', userData.token);
+    const login = (userData, additionalData) => {
+        // Ensure userData and token are valid
+        const token = userData.token || localStorage.getItem('token');
+        if (!token) {
+            console.error("No token available for login");
+            return;
         }
-        setCurrentUser(userData);
+
+        const userWithToken = { ...userData, token };
+        localStorage.setItem('user', JSON.stringify(userWithToken));
+        localStorage.setItem('token', token);
+        if (additionalData) {
+            localStorage.setItem('additionalData', JSON.stringify(additionalData));
+        }
+        setCurrentUser(userWithToken);
     };
 
     const logout = () => {
         localStorage.removeItem('user');
         localStorage.removeItem('token');
+        localStorage.removeItem('additionalData');
         setCurrentUser(null);
     };
 
