@@ -169,10 +169,10 @@ const navigation = {
           name: "Notifications History",
           path: "/user/dashboard/notifications",
         },
-        {
-          name: "Notifications Settings",
-          path: "/user/dashboard/settings",
-        },
+        // {
+        //   name: "Notifications Settings",
+        //   path: "/user/dashboard/settings",
+        // },
 
         // { name: "Upcoming Deadlines", path: "/user/dashboard/" },
         // { name: "Smart Categorization", path: "/user/dashboard/" },

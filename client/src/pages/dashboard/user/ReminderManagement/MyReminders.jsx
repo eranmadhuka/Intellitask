@@ -312,7 +312,7 @@ const MyReminders = () => {
                 </p>
                 <button
                   onClick={closeAlarm}
-                  className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                  className="mt-4 bg-green-600 text-black px-4 py-2 rounded hover:bg-green-700"
                 >
                   Mark as Done & Stop Alarm
                 </button>
