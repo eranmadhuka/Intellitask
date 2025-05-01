@@ -35,6 +35,24 @@ const Notifications = () => {
     }
   };
 
+  const handleDownloadReport = () => {
+    const csvHeader = "Title,Date\n";
+    const csvRows = completedReminders
+      .map((reminder) => `"${reminder.title}","${reminder.date}"`)
+      .join("\n");
+    const csvContent = csvHeader + csvRows;
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "completed_reminders_report.csv";
+    link.click();
+
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div>
       <DashboardLayout>
@@ -43,6 +61,14 @@ const Notifications = () => {
             <h1 className="text-2xl font-bold text-white">
               Completed Reminders
             </h1>
+            {completedReminders.length > 0 && (
+              <button
+                onClick={handleDownloadReport}
+                className="mt-4 md:mt-0 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+              >
+                Download Report
+              </button>
+            )}
           </div>
 
           {/* Notifications List */}
