@@ -104,16 +104,20 @@ const UserDashboard = () => {
 
     const today = new Date().toISOString().split('T')[0];
     const todayReminders = reminders
-        .filter(reminder => reminder.date === today && !reminder.completed)
-        .slice(0, 3); // Limit to 3 reminders
+        .filter(reminder => {
+            const reminderDate = new Date(reminder.dueDate).toISOString().split('T')[0];
+            return reminderDate === today && !reminder.completed;
+        })
+        .slice(0, 3);
 
     const upcomingReminders = reminders
         .filter(reminder => {
-            const reminderDate = new Date(reminder.date);
-            return reminderDate > new Date(today) && !reminder.completed;
+            const reminderDate = new Date(reminder.dueDate);
+            const todayDate = new Date(today);
+            return reminderDate > todayDate && !reminder.completed;
         })
-        .sort((a, b) => new Date(a.date) - new Date(b.date))
-        .slice(0, 3); // Limit to 3 reminders
+        .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+        .slice(0, 3);
 
     const formatDate = (dateString) => {
         const options = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
