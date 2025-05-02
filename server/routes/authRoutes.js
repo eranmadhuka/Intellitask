@@ -77,7 +77,7 @@ router.post("/login", async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 });
- 
+
 // PROTECTED ROUTE: Only Admins Can Access
 router.get("/admin", authMiddleware, (req, res) => {
     if (req.user.role !== "admin") {
@@ -161,10 +161,10 @@ router.post("/reset-password/:token", async (req, res) => {
 // USER MANAGEMENT ROUTES
 
 // Get all user details (Protected Route)
-router.get("/users", async (req, res) => { 
+router.get("/users", authMiddleware, async (req, res) => {
     try {
         // Retrieve all users from the database
-        const users = await User.find(); 
+        const users = await User.find();
 
         if (users.length === 0) {
             return res.status(404).json({ error: "No users found" });
@@ -177,10 +177,13 @@ router.get("/users", async (req, res) => {
     }
 });
 
-
-// Add User Route
-router.post("/add", async (req, res) => {
+// Add User Route (Protected for Admins)
+router.post("/add", authMiddleware, async (req, res) => {
     try {
+        if (req.user.role !== "admin") {
+            return res.status(403).json({ message: "Access denied" });
+        }
+
         const { firstName, lastName, username, email, password, phone, gender, role } = req.body;
 
         // Validate required fields
@@ -220,10 +223,13 @@ router.post("/add", async (req, res) => {
     }
 });
 
-
 // Update user details (Protected Route)
-router.put("/user/update/:id", async (req, res) => {
+router.put("/user/update/:id", authMiddleware, async (req, res) => {
     try {
+        if (req.user.role !== "admin") {
+            return res.status(403).json({ message: "Access denied" });
+        }
+
         const updatedUser = await User.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true });
 
         if (!updatedUser) {
@@ -237,8 +243,12 @@ router.put("/user/update/:id", async (req, res) => {
 });
 
 // Delete user (Protected Route)
-router.delete("/user/delete/:id", async (req, res) => {
+router.delete("/user/delete/:id", authMiddleware, async (req, res) => {
     try {
+        if (req.user.role !== "admin") {
+            return res.status(403).json({ message: "Access denied" });
+        }
+
         const deletedUser = await User.findByIdAndDelete(req.params.id);
         if (!deletedUser) {
             return res.status(404).json({ error: "User not found" });
@@ -249,12 +259,13 @@ router.delete("/user/delete/:id", async (req, res) => {
     }
 });
 
-module.exports = router;
-
-
 // Get user by ID
-router.get('/users/:id', async (req, res) => {
+router.get('/users/:id', authMiddleware, async (req, res) => {
     try {
+        if (req.user.role !== "admin") {
+            return res.status(403).json({ message: "Access denied" });
+        }
+
         const user = await User.findById(req.params.id); // Exclude password
         if (!user) {
             return res.status(404).json({ message: "User not found" });
@@ -264,7 +275,6 @@ router.get('/users/:id', async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 });
-
 
 // PROTECTED ROUTE: Get user profile (Requires authentication)
 router.get("/profile", authMiddleware, async (req, res) => {
@@ -278,3 +288,5 @@ router.get("/profile", authMiddleware, async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 });
+
+module.exports = router;

@@ -9,183 +9,7 @@ import { RiUserSettingsFill } from "react-icons/ri";
 import { PiPaperclipFill } from "react-icons/pi";
 import { TbLogout2 } from "react-icons/tb";
 import { HiBellAlert } from "react-icons/hi2";
-
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
-
-const API_URL = process.env.REACT_APP_API_URL;
-
-const navigation = {
-  // admin: [
-  //   {
-  //     name: "Dashboard",
-  //     path: "/admin/dashboard",
-  //     icon: <MdDashboard />,
-  //   },
-  //   {
-  //     name: "Users Management",
-  //     icon: <FaUsers />,
-  //     subMenu: [
-  //       { name: "View All Users", path: "/admin/dashboard/" },
-  //       { name: "Add task", path: "/user/dashboard/addtask" },
-  //       { name: "My tasks", path: "/user/dashboard/mytasks" },
-  //     ],
-  //   },
-  //   {
-  //     name: "Task Monitoring",
-  //     icon: <FaTasks />,
-  //     subMenu: [
-  //       { name: "Task Analytics", path: "/admin/dashboard/" },
-  //       { name: "User Task Logs", path: "/admin/dashboard/" },
-  //       { name: "Productivity Reports", path: "/admin/dashboard/" },
-  //     ],
-  //   },
-  //   {
-  //     name: "System Settings",
-  //     icon: <PiPaperclipFill />,
-  //     subMenu: [
-  //       { name: "Task Categorization Rules", path: "/admin/dashboard/" },
-  //       { name: "Voice-to-Text Configuration", path: "/admin/dashboard/" },
-  //       { name: "Notification & Reminder Settings", path: "/admin/dashboard/" },
-  //     ],
-  //   },
-  //   {
-  //     name: "Profile Setting",
-  //     path: "/admin/dashboard/user/settings",
-  //     icon: <RiUserSettingsFill />,
-  //   },
-  // ],
-  // user: [
-  //   {
-  //     name: "Dashboard",
-  //     path: "/user/dashboard",
-  //     icon: <MdDashboard />,
-  //   },
-  //   {
-  //     name: "My Tasks",
-  //     icon: <FaUserGraduate />,
-  //     subMenu: [
-  //       { name: "Add New Task", path: "/user/dashboard/addtask" },
-
-  //       { name: "View All Tasks", path: "/user/dashboard/mytasks" },
-
-  //       { name: "View All Tasks", path: "/user/dashboard/mytasks" },
-  //     ],
-  //   },
-  //   {
-  //     name: "Reminders & Alerts",
-  //     icon: <HiBellAlert />,
-  //     subMenu: [
-  //       { name: "Today's Reminders", path: "/user/dashboard/myReminders" },
-  //       { name: "Manage Reminders", path: "/user/dashboard/addReminder" },
-  //       {
-  //         name: "Notifications History ",
-  //         path: "/user/dashboard/notifications",
-  //       },
-  //       {
-  //         name: "Notifications Settings",
-  //         path: "/user/dashboard/settings",
-  //       },
-
-  //       { name: "Today's Deadlines", path: "/user/dashboard/" },
-  //       { name: "Smart Categorization", path: "/user/dashboard/" },
-  //       { name: "Notification Settings", path: "/user/dashboard/" },
-  //     ],
-  //   },
-  //   {
-  //     name: "Progress & Insights",
-  //     icon: <FaBarsProgress />,
-  //     subMenu: [
-  //       { name: "Productivity Stats", path: "/user/dashboard/" },
-  //       { name: "Time Spent on Tasks", path: "/user/dashboard/" },
-  //       { name: "Task Completion Rate", path: "/user/dashboard/" },
-  //     ],
-  //   },
-  //   {
-  //     name: "Profile Setting",
-  //     path: "/user/dashboard/settings",
-  //     icon: <RiUserSettingsFill />,
-  //   },
-  // ],
-
-  admin: [
-    {
-      name: "Dashboard",
-      path: "/admin/dashboard",
-      icon: <MdDashboard />,
-    },
-    {
-      name: "Users Management",
-      icon: <FaUsers />,
-      subMenu: [
-        { name: "View All Users", path: "/admin/dashboard/users" },
-        { name: "Add New User", path: "/admin/dashboard/add" },
-      ],
-    },
-    {
-      name: "Task Monitoring",
-      icon: <FaTasks />,
-      subMenu: [
-        { name: "Task Analytics", path: "/admin/dashboard/" },
-        { name: "User Task Logs", path: "/admin/dashboard/" },
-        { name: "Productivity Reports", path: "/admin/dashboard/" },
-      ],
-    },
-    {
-      name: "System Settings",
-      icon: <PiPaperclipFill />,
-      subMenu: [
-        { name: "Task Categorization Rules", path: "/admin/dashboard/" },
-        { name: "Voice-to-Text Configuration", path: "/admin/dashboard/" },
-        { name: "Notification & Reminder Settings", path: "/admin/dashboard/" },
-      ],
-    },
-    {
-      name: "Profile Setting",
-      path: "/admin/dashboard/profile",
-      icon: <RiUserSettingsFill />,
-    },
-  ],
-  user: [
-    {
-      name: "Dashboard",
-      path: "/user/dashboard",
-      icon: <MdDashboard />,
-    },
-    {
-      name: "My Tasks",
-      icon: <FaUserGraduate />,
-      subMenu: [
-        { name: "Add New Task", path: "/user/dashboard/addtask" },
-        { name: "View All Tasks", path: "/user/dashboard/mytasks" },
-      ],
-    },
-    {
-      name: "Reminders & Alerts",
-      icon: <HiBellAlert />,
-      subMenu: [
-        { name: "Today's Reminders", path: "/user/dashboard/myReminders" },
-        { name: "Manage Reminders", path: "/user/dashboard/addReminder" },
-        {
-          name: "Notifications History",
-          path: "/user/dashboard/notifications",
-        },
-        // {
-        //   name: "Notifications Settings",
-        //   path: "/user/dashboard/settings",
-        // },
-
-        // { name: "Upcoming Deadlines", path: "/user/dashboard/" },
-        // { name: "Smart Categorization", path: "/user/dashboard/" },
-        // { name: "Notification Settings", path: "/user/dashboard/" },
-      ],
-    },
-    {
-      name: "Profile Setting",
-      path: "/user/dashboard/profile",
-      icon: <RiUserSettingsFill />,
-    },
-  ],
-};
 
 const Sidebar = ({ isSidebarOpen, reminderCount }) => {
   const { currentUser, logout } = useAuth();
@@ -193,9 +17,80 @@ const Sidebar = ({ isSidebarOpen, reminderCount }) => {
   const navigate = useNavigate();
   const [activeSubmenu, setActiveSubmenu] = useState("");
 
-  // const currentUser = "user";
+  const navigation = {
+    admin: [
+      {
+        name: "Dashboard",
+        path: "/admin/dashboard",
+        icon: <MdDashboard />,
+      },
+      {
+        name: "Users Management",
+        icon: <FaUsers />,
+        subMenu: [
+          { name: "View All Users", path: "/admin/dashboard/users" },
+          { name: "Add New User", path: "/admin/dashboard/add" },
+        ],
+      },
+      {
+        name: "Task Monitoring",
+        icon: <FaTasks />,
+        subMenu: [
+          { name: "Task Analytics", path: "/admin/dashboard/" },
+          { name: "User Task Logs", path: "/admin/dashboard/" },
+          { name: "Productivity Reports", path: "/admin/dashboard/" },
+        ],
+      },
+      {
+        name: "System Settings",
+        icon: <PiPaperclipFill />,
+        subMenu: [
+          { name: "Task Categorization Rules", path: "/admin/dashboard/" },
+          { name: "Voice-to-Text Configuration", path: "/admin/dashboard/" },
+          { name: "Notification & Reminder Settings", path: "/admin/dashboard/" },
+        ],
+      },
+      {
+        name: "Profile Setting",
+        path: currentUser?.id ? `/admin/dashboard/profile/${currentUser.id}` : "/admin/dashboard/profile",
+        icon: <RiUserSettingsFill />,
+      },
+    ],
+    user: [
+      {
+        name: "Dashboard",
+        path: "/user/dashboard",
+        icon: <MdDashboard />,
+      },
+      {
+        name: "My Tasks",
+        icon: <FaUserGraduate />,
+        subMenu: [
+          { name: "Add New Task", path: "/user/dashboard/addtask" },
+          { name: "View All Tasks", path: "/user/dashboard/mytasks" },
+        ],
+      },
+      {
+        name: "Reminders & Alerts",
+        icon: <HiBellAlert />,
+        subMenu: [
+          { name: "Today's Reminders", path: "/user/dashboard/myReminders" },
+          { name: "Manage Reminders", path: "/user/dashboard/addReminder" },
+          {
+            name: "Notifications History",
+            path: "/user/dashboard/notifications",
+          },
+        ],
+      },
+      {
+        name: "Profile Setting",
+        path: currentUser?.id ? `/user/dashboard/profile/${currentUser.id}` : "/user/dashboard/profile",
+        icon: <RiUserSettingsFill />,
+      },
+    ],
+  };
+
   const activeMenu = navigation[currentUser?.role] || [];
-  // const activeMenu = navigation[currentUser] || [];
 
   const handleLogout = () => {
     logout();
@@ -205,10 +100,6 @@ const Sidebar = ({ isSidebarOpen, reminderCount }) => {
   const toggleSubmenu = (name) => {
     setActiveSubmenu(activeSubmenu === name ? "" : name);
   };
-
-  // const isActiveRoute = (path) => {
-  //     return location.pathname.startsWith(path);
-  // };
 
   const isActiveRoute = (path) => {
     return location.pathname === path;
@@ -230,9 +121,7 @@ const Sidebar = ({ isSidebarOpen, reminderCount }) => {
                     <button
                       onClick={() => toggleSubmenu(item.name)}
                       className={`flex items-center justify-between w-full p-2 rounded-lg ${activeSubmenu === item.name ||
-                          item.subMenu.some((subItem) =>
-                            isActiveRoute(subItem.path)
-                          )
+                          item.subMenu.some((subItem) => isActiveRoute(subItem.path))
                           ? "bg-gray-100 dark:bg-gray-700"
                           : "hover:bg-gray-100 dark:hover:bg-gray-700"
                         }`}

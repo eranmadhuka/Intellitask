@@ -4,156 +4,353 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DashboardLayout from '../../../components/Common/Layout/DashboardLayout';
+import { useAuth } from "../../../context/AuthContext";
 
 const EditUser = () => {
-    // State variables for form fields
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [username, setUsername] = useState("");
-    const [email, setEmail] = useState("");
-    const [phone, setPhone] = useState("");
-    const [gender, setGender] = useState("");
+    const [formData, setFormData] = useState({
+        firstName: "",
+        lastName: "",
+        username: "",
+        email: "",
+        phone: "",
+        gender: "",
+    });
     const [loading, setLoading] = useState(false);
-    const [showPopup, setShowPopup] = useState(false);
-    const [popupMessage, setPopupMessage] = useState("");
-
-    // Validation errors
     const [errors, setErrors] = useState({});
-
-    // Get user ID from the URL parameters
+    const [touched, setTouched] = useState({});
     const { id } = useParams();
     const navigate = useNavigate();
+    const { currentUser } = useAuth();
 
-    // Fetch user details when component mounts
+    // Fetch user data on component mount
     useEffect(() => {
-        axios.get(`http://localhost:3001/api/auth/users/${id}`)
-            .then(response => {
+        const fetchUserData = async () => {
+            try {
+                const token = currentUser.token || localStorage.getItem("token");
+                if (!token) {
+                    throw new Error("No authentication token found");
+                }
+                const response = await axios.get(`http://localhost:3001/api/auth/users/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
                 const { firstName, lastName, username, email, phone, gender } = response.data.user;
-                setFirstName(firstName);
-                setLastName(lastName);
-                setUsername(username);
-                setEmail(email);
-                setPhone(phone);
-                setGender(gender);
-            })
-            .catch(error => {
-                toast.error("Error fetching user data");
-            });
+                setFormData({ firstName, lastName, username, email, phone, gender });
+            } catch (error) {
+                toast.error("Failed to fetch user data");
+                console.error("Fetch error:", error);
+            }
+        };
+
+        fetchUserData();
     }, [id]);
 
-    // Validate form fields
-    const validate = () => {
-        let tempErrors = {};
-        const nameRegex = /^[A-Za-z]{2,}$/;
-        const usernameRegex = /^[a-zA-Z0-9]{3,}$/;
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const phoneRegex = /^[0-9]{10}$/;
+    // Validation function
+    const validate = (values) => {
+        const newErrors = {};
 
-        if (!nameRegex.test(firstName)) tempErrors.firstName = "First Name must be at least 2 letters.";
-        if (!nameRegex.test(lastName)) tempErrors.lastName = "Last Name must be at least 2 letters.";
-        if (!usernameRegex.test(username)) tempErrors.username = "Username must be at least 3 alphanumeric characters.";
-        if (!emailRegex.test(email)) tempErrors.email = "Invalid email format.";
-        if (!phoneRegex.test(phone)) tempErrors.phone = "Phone number must be 10 digits.";
-        if (!gender) tempErrors.gender = "Please select a gender.";
+        if (!values.firstName) newErrors.firstName = "First name is required";
+        else if (!/^[A-Za-z]{2,}$/.test(values.firstName)) newErrors.firstName = "First name must be at least 2 letters";
 
-        setErrors(tempErrors);
-        return Object.keys(tempErrors).length === 0;
+        if (!values.lastName) newErrors.lastName = "Last name is required";
+        else if (!/^[A-Za-z]{2,}$/.test(values.lastName)) newErrors.lastName = "Last name must be at least 2 letters";
+
+        if (!values.username) newErrors.username = "Username is required";
+        else if (!/^[a-zA-Z0-9]{3,}$/.test(values.username)) newErrors.username = "Username must be at least 3 alphanumeric characters";
+
+        if (!values.email) newErrors.email = "Email is required";
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) newErrors.email = "Invalid email format";
+
+        if (!values.phone) newErrors.phone = "Phone number is required";
+        else if (!/^[0-9]{10}$/.test(values.phone)) newErrors.phone = "Phone number must be 10 digits";
+
+        if (!values.gender) newErrors.gender = "Gender is required";
+
+        return newErrors;
     };
 
-    // Handle form submission for updating user details
-    const handleUpdateUser = async (e) => {
-        e.preventDefault();
-        if (!validate()) return; // Stop submission if validation fails
+    const handleChange = (e) => {
+        const { name, value } = e.target;
 
+        // Format phone number input
+        if (name === "phone") {
+            const formattedValue = value.replace(/\D/g, '').slice(0, 10);
+            setFormData(prev => ({ ...prev, [name]: formattedValue }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
+
+        // Validate on change if the field has been touched
+        if (touched[name]) {
+            setErrors(validate({ ...formData, [name]: value }));
+        }
+    };
+
+    const handleBlur = (e) => {
+        const { name } = e.target;
+        setTouched(prev => ({ ...prev, [name]: true }));
+        setErrors(validate(formData));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         setLoading(true);
 
-        const data = { firstName, lastName, username, email, phone, gender };
+        // Mark all fields as touched to show all errors
+        const allTouched = Object.keys(formData).reduce((acc, key) => {
+            acc[key] = true;
+            return acc;
+        }, {});
+        setTouched(allTouched);
+
+        const validationErrors = validate(formData);
+        setErrors(validationErrors);
+
+        if (Object.keys(validationErrors).length > 0) {
+            setLoading(false);
+            toast.error("Please fix the errors in the form");
+            return;
+        }
 
         try {
-            await axios.put(`http://localhost:3001/api/auth/user/update/${id}`, data);
-            setPopupMessage("User updated successfully!");
-            setShowPopup(true);
+            const token = currentUser.token || localStorage.getItem("token");
+            if (!token) {
+                throw new Error("No authentication token found");
+            }
+            await axios.put(`http://localhost:3001/api/auth/user/update/${id}`, formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            toast.success("User updated successfully!");
             setTimeout(() => {
-                setShowPopup(false);
                 navigate('/admin/dashboard/users');
-            }, 2000);
+            }, 1500);
         } catch (error) {
-            setPopupMessage(error.response?.data?.message || "Failed to update user");
-            setShowPopup(true);
+            const errorMessage = error.response?.data?.message || "Failed to update user";
+            toast.error(errorMessage);
+            console.error("Update error:", error);
         } finally {
             setLoading(false);
         }
     };
 
+    const isFormValid = () => {
+        return Object.keys(validate(formData)).length === 0;
+    };
+
     return (
         <DashboardLayout>
-            <div className="bg-gray-100 dark:bg-slate-900 min-h-screen flex items-center justify-center">
-                <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md dark:bg-slate-800">
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Edit User</h1>
-                    <form className="space-y-4" onSubmit={handleUpdateUser}>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">First Name</label>
-                                <input type="text" className="w-full px-4 py-2 border rounded-lg" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-                                {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName}</p>}
+            <div className="bg-gray-50 dark:bg-slate-900 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-3xl mx-auto">
+                    <div className="bg-white dark:bg-slate-800 shadow rounded-lg p-8">
+                        <div className="text-center mb-8">
+                            <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">
+                                Edit User
+                            </h1>
+                            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                Update the user details below
+                            </p>
+                        </div>
+
+                        <form className="space-y-6" onSubmit={handleSubmit}>
+                            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                                {/* First Name */}
+                                <div>
+                                    <label
+                                        htmlFor="firstName"
+                                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                    >
+                                        First Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="firstName"
+                                        name="firstName"
+                                        placeholder="John"
+                                        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:outline-none ${errors.firstName && touched.firstName
+                                            ? "border-red-500 focus:ring-red-200 dark:border-red-500"
+                                            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:border-slate-600"
+                                            } dark:bg-slate-700 dark:text-white`}
+                                        value={formData.firstName}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                    />
+                                    {errors.firstName && touched.firstName && (
+                                        <p className="mt-1 text-sm text-red-600 dark:text-red-500">{errors.firstName}</p>
+                                    )}
+                                </div>
+
+                                {/* Last Name */}
+                                <div>
+                                    <label
+                                        htmlFor="lastName"
+                                        className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                    >
+                                        Last Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="lastName"
+                                        name="lastName"
+                                        placeholder="Doe"
+                                        className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:outline-none ${errors.lastName && touched.lastName
+                                            ? "border-red-500 focus:ring-red-200 dark:border-red-500"
+                                            : "border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:border-slate-600"
+                                            } dark:bg-slate-700 dark:text-white`}
+                                        value={formData.lastName}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                    />
+                                    {errors.lastName && touched.lastName && (
+                                        <p className="mt-1 text-sm text-red-600 dark:text-red-500">{errors.lastName}</p>
+                                    )}
+                                </div>
                             </div>
+
+                            {/* Username */}
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</label>
-                                <input type="text" className="w-full px-4 py-2 border rounded-lg" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-                                {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName}</p>}
+                                <label
+                                    htmlFor="username"
+                                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                >
+                                    Username
+                                </label>
+                                <input
+                                    type="text"
+                                    id="username"
+                                    name="username"
+                                    placeholder="johndoe123"
+                                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:outline-none ${errors.username && touched.username
+                                        ? "border-red-500 focus:ring-red-200 dark:border-red-500"
+                                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:border-slate-600"
+                                        } dark:bg-slate-700 dark:text-white`}
+                                    value={formData.username}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                />
+                                {errors.username && touched.username && (
+                                    <p className="mt-1 text-sm text-red-600 dark:text-red-500">{errors.username}</p>
+                                )}
                             </div>
-                        </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
-                            <input type="text" className="w-full px-4 py-2 border rounded-lg" value={username} onChange={(e) => setUsername(e.target.value)} />
-                            {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>}
-                        </div>
+                            {/* Email */}
+                            <div>
+                                <label
+                                    htmlFor="email"
+                                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                >
+                                    Email
+                                </label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    placeholder="john.doe@example.com"
+                                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:outline-none ${errors.email && touched.email
+                                        ? "border-red-500 focus:ring-red-200 dark:border-red-500"
+                                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:border-slate-600"
+                                        } dark:bg-slate-700 dark:text-white`}
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                />
+                                {errors.email && touched.email && (
+                                    <p className="mt-1 text-sm text-red-600 dark:text-red-500">{errors.email}</p>
+                                )}
+                            </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-                            <input type="email" className="w-full px-4 py-2 border rounded-lg" value={email} onChange={(e) => setEmail(e.target.value)} />
-                            {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
-                        </div>
+                            {/* Phone */}
+                            <div>
+                                <label
+                                    htmlFor="phone"
+                                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                >
+                                    Phone Number
+                                </label>
+                                <input
+                                    type="tel"
+                                    id="phone"
+                                    name="phone"
+                                    placeholder="1234567890"
+                                    maxLength="10"
+                                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:outline-none ${errors.phone && touched.phone
+                                        ? "border-red-500 focus:ring-red-200 dark:border-red-500"
+                                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:border-slate-600"
+                                        } dark:bg-slate-700 dark:text-white`}
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                />
+                                {errors.phone && touched.phone && (
+                                    <p className="mt-1 text-sm text-red-600 dark:text-red-500">{errors.phone}</p>
+                                )}
+                            </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone</label>
-                            <input type="tel" className="w-full px-4 py-2 border rounded-lg" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                            {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
-                        </div>
+                            {/* Gender */}
+                            <div>
+                                <label
+                                    htmlFor="gender"
+                                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                                >
+                                    Gender
+                                </label>
+                                <select
+                                    id="gender"
+                                    name="gender"
+                                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:outline-none ${errors.gender && touched.gender
+                                        ? "border-red-500 focus:ring-red-200 dark:border-red-500"
+                                        : "border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:border-slate-600"
+                                        } dark:bg-slate-700 dark:text-white`}
+                                    value={formData.gender}
+                                    onChange={handleChange}
+                                    onBlur={handleBlur}
+                                >
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                    <option value="Prefer not to say">Prefer not to say</option>
+                                </select>
+                                {errors.gender && touched.gender && (
+                                    <p className="mt-1 text-sm text-red-600 dark:text-red-500">{errors.gender}</p>
+                                )}
+                            </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Gender</label>
-                            <select className="w-full px-4 py-2 border rounded-lg" value={gender} onChange={(e) => setGender(e.target.value)}>
-                                <option value="">Select gender</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="other">Other</option>
-                            </select>
-                            {errors.gender && <p className="text-red-500 text-sm">{errors.gender}</p>}
-                        </div>
-
-                        <button type="submit" className={`w-full px-4 py-2 text-white bg-blue-600 rounded-lg ${loading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={loading}>
-                            {loading ? 'Updating...' : 'Update User'}
-                        </button>
-
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                            <Link to="/admin/dashboard/users" className="text-blue-600 hover:underline dark:text-blue-400">Back to Users</Link>
-                        </p>
-                    </form>
-                </div>
-
-                {showPopup && (
-                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                        <div className="bg-white dark:bg-slate-700 p-6 rounded-lg shadow-lg text-center">
-                            <p className="text-lg text-gray-900 dark:text-white">{popupMessage}</p>
-                            <button onClick={() => setShowPopup(false)} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">OK</button>
-                        </div>
+                            <div className="pt-4 flex justify-between items-center">
+                                <Link
+                                    to="/admin/dashboard/users"
+                                    className="px-6 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 dark:text-gray-300 dark:bg-slate-700 dark:hover:bg-slate-600"
+                                >
+                                    Back to Users
+                                </Link>
+                                <button
+                                    type="submit"
+                                    className={`px-6 py-2 text-white rounded-lg focus:ring-2 focus:outline-none focus:ring-offset-2 ${loading || !isFormValid()
+                                        ? "bg-blue-400 dark:bg-blue-500 cursor-not-allowed"
+                                        : "bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
+                                        } font-medium`}
+                                    disabled={loading || !isFormValid()}
+                                >
+                                    {loading ? (
+                                        <span className="flex items-center justify-center">
+                                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Updating...
+                                        </span>
+                                    ) : (
+                                        "Update User"
+                                    )}
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                )}
+                </div>
             </div>
         </DashboardLayout>
-
     );
 };
 

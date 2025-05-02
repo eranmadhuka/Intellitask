@@ -2,36 +2,74 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import * as XLSX from 'xlsx';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import DashboardLayout from '../../../components/Common/Layout/DashboardLayout';
+import { useAuth } from '../../../context/AuthContext';
 
 const UserDetails = () => {
+    const { currentUser } = useAuth();
     const [users, setUsers] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchUsers = async () => {
+            if (!currentUser) {
+                toast.error("You must be logged in to view users");
+                navigate('/login');
+                return;
+            }
+
+            if (currentUser.role !== "admin") {
+                toast.error("Only admins can view user details");
+                navigate('/');
+                return;
+            }
+
             try {
-                const response = await axios.get('http://localhost:3001/api/auth/users');
+                const token = currentUser.token || localStorage.getItem("token");
+                if (!token) {
+                    throw new Error("No authentication token found");
+                }
+
+                const response = await axios.get('http://localhost:3001/api/auth/users', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
                 if (response.data.success) {
                     setUsers(response.data.users);
                 }
             } catch (error) {
+                const errorMessage = error.response?.data?.message || "Error fetching users";
+                toast.error(errorMessage);
                 console.error("Error fetching users:", error);
             }
         };
         fetchUsers();
-    }, []);
+    }, [currentUser, navigate]);
 
     const handleDelete = async (userId) => {
         if (window.confirm("Are you sure you want to delete this user?")) {
             try {
-                await axios.delete(`http://localhost:3001/api/auth/user/delete/${userId}`);
-                alert("User deleted successfully!");
+                const token = currentUser.token || localStorage.getItem("token");
+                if (!token) {
+                    throw new Error("No authentication token found");
+                }
+
+                await axios.delete(`http://localhost:3001/api/auth/user/delete/${userId}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                toast.success("User deleted successfully!");
                 setUsers(users.filter(user => user._id !== userId));
             } catch (error) {
+                const errorMessage = error.response?.data?.message || "Failed to delete user";
+                toast.error(errorMessage);
                 console.error("Error deleting user:", error);
-                alert("Failed to delete user.");
             }
         }
     };

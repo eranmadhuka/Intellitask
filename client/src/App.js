@@ -104,6 +104,8 @@ function UserDashboardLayout() {
 
       <Route path="/notifications" element={<Notifications />} />
       <Route path="/Settings" element={<Settings />} />
+
+      <Route path="/profile/:id" element={<UserProfile />} />
     </Routes>
   );
 }

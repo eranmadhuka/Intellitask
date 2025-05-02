@@ -1,66 +1,92 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DashboardLayout from '../../../components/Common/Layout/DashboardLayout';
+import { useAuth } from '../../../context/AuthContext';
+
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
 const UserProfile = () => {
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [username, setUsername] = useState("");
-    const [email, setEmail] = useState("");
-    const [phone, setPhone] = useState("");
-    const [gender, setGender] = useState("");
+    const { currentUser } = useAuth();
+    const [formData, setFormData] = useState({
+        firstName: "",
+        lastName: "",
+        username: "",
+        email: "",
+        phone: "",
+        gender: "",
+    });
     const [loading, setLoading] = useState(false);
-    const [showPopup, setShowPopup] = useState(false);
-    const [popupMessage, setPopupMessage] = useState("");
-    const [errors, setErrors] = useState({});
-
     const { id } = useParams();
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Get JWT token from localStorage or wherever you store it
-        const token = localStorage.getItem('token');
-        
-        axios.get(`http://localhost:3001/api/auth/profile`, {
-            headers: {
-                'Authorization': `Bearer ${token}` // Add the token in the Authorization header
+        const fetchUser = async () => {
+            if (!currentUser) {
+                toast.error("You must be logged in to view this page");
+                navigate('/login');
+                return;
             }
-        })
-        .then(response => {
-            const { firstName, lastName, username, email, phone, gender } = response.data.user;
-            setFirstName(firstName);
-            setLastName(lastName);
-            setUsername(username);
-            setEmail(email);
-            setPhone(phone);
-            setGender(gender);
-        })
-        .catch(error => {
-            console.error("Error fetching user data:", error);
-            toast.error("Error fetching user data");
-        });
-    }, [id]);
+
+            if (currentUser.role !== "admin") {
+                toast.error("Only admins can edit user profiles");
+                navigate('/');
+                return;
+            }
+
+            try {
+                const token = currentUser.token || localStorage.getItem("token");
+                if (!token) {
+                    throw new Error("No authentication token found");
+                }
+
+                const response = await axios.get(`${API_URL}/api/auth/users/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                const { firstName, lastName, username, email, phone, gender } = response.data.user;
+                setFormData({ firstName, lastName, username, email, phone, gender });
+            } catch (error) {
+                const errorMessage = error.response?.data?.message || "Error fetching user data";
+                toast.error(errorMessage);
+                console.error("Error fetching user data:", error);
+            }
+        };
+
+        fetchUser();
+    }, [id, currentUser, navigate]);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
 
     const handleUpdateUser = async (e) => {
         e.preventDefault();
         setLoading(true);
 
-        const data = { firstName, lastName, username, email, phone, gender };
-
         try {
-            await axios.put(`http://localhost:3001/api/auth/user/update/${id}`, data);
-            setPopupMessage("User updated successfully!");
-            setShowPopup(true);
-            setTimeout(() => {
-                setShowPopup(false);
-                navigate('/users');
-            }, 2000);
+            const token = currentUser.token || localStorage.getItem("token");
+            if (!token) {
+                throw new Error("No authentication token found");
+            }
+
+            await axios.put(`${API_URL}/api/auth/user/update/${id}`, formData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            toast.success("User updated successfully!");
+            setTimeout(() => navigate('/admin/dashboard'), 2000);
         } catch (error) {
-            setPopupMessage(error.response?.data?.message || "Failed to update user");
-            setShowPopup(true);
+            const errorMessage = error.response?.data?.message || "Failed to update user";
+            toast.error(errorMessage);
+            console.error("Error updating user:", error);
         } finally {
             setLoading(false);
         }
@@ -69,50 +95,164 @@ const UserProfile = () => {
     const handleDeleteUser = async () => {
         if (window.confirm("Are you sure you want to delete this user?")) {
             try {
-                await axios.delete(`http://localhost:3001/api/auth/user/delete/${id}`);
+                const token = currentUser.token || localStorage.getItem("token");
+                if (!token) {
+                    throw new Error("No authentication token found");
+                }
+
+                await axios.delete(`${API_URL}/api/auth/user/delete/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
                 toast.success("User deleted successfully!");
-                navigate('/users');
+                setTimeout(() => navigate('/admin/dashboard'), 2000);
             } catch (error) {
+                const errorMessage = error.response?.data?.message || "Failed to delete user";
+                toast.error(errorMessage);
                 console.error("Error deleting user:", error);
-                toast.error("Failed to delete user.");
             }
         }
     };
 
     return (
         <DashboardLayout>
-        <div className="bg-gray-100 dark:bg-slate-900 min-h-screen flex items-center justify-center">
-            <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md dark:bg-slate-800">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6"><center>My Profile</center></h1>
-                <form className="space-y-4" onSubmit={handleUpdateUser}>
-                    <input type="text" placeholder="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} className="w-full px-4 py-2 border rounded-lg" />
-                    <input type="text" placeholder="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} className="w-full px-4 py-2 border rounded-lg" />
-                    <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full px-4 py-2 border rounded-lg" />
-                    <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-4 py-2 border rounded-lg" />
-                    <input type="tel" placeholder="Phone" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full px-4 py-2 border rounded-lg" />
-                    <select value={gender} onChange={(e) => setGender(e.target.value)} className="w-full px-4 py-2 border rounded-lg">
-                        <option value="">Select gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="other">Other</option>
-                    </select>
-                    <button type="submit" className={`w-full px-4 py-2 text-white bg-blue-600 rounded-lg ${loading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={loading}>
-                        {loading ? 'Updating...' : 'Update Profile'}
-                    </button>
-                    <button type="button" onClick={handleDeleteUser} className="w-full px-4 py-2 mt-2 text-white bg-red-600 rounded-lg">
-                        Delete Profile
-                    </button>
-                </form>
-            </div>
-            {showPopup && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white dark:bg-slate-700 p-6 rounded-lg shadow-lg text-center">
-                        <p className="text-lg text-gray-900 dark:text-white">{popupMessage}</p>
-                        <button onClick={() => setShowPopup(false)} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">OK</button>
-                    </div>
+            <div className="bg-gray-100 dark:bg-slate-900 min-h-screen flex items-center justify-center">
+                <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md dark:bg-slate-800">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
+                        Edit User Profile
+                    </h1>
+                    <form className="space-y-6" onSubmit={handleUpdateUser}>
+                        <div>
+                            <label
+                                htmlFor="firstName"
+                                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                            >
+                                First Name
+                            </label>
+                            <input
+                                type="text"
+                                id="firstName"
+                                name="firstName"
+                                placeholder="First Name"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                                value={formData.firstName}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label
+                                htmlFor="lastName"
+                                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                            >
+                                Last Name
+                            </label>
+                            <input
+                                type="text"
+                                id="lastName"
+                                name="lastName"
+                                placeholder="Last Name"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                                value={formData.lastName}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label
+                                htmlFor="username"
+                                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                            >
+                                Username
+                            </label>
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                placeholder="Username"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                                value={formData.username}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label
+                                htmlFor="email"
+                                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                            >
+                                Email
+                            </label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                placeholder="name@company.com"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                                value={formData.email}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label
+                                htmlFor="phone"
+                                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                            >
+                                Phone
+                            </label>
+                            <input
+                                type="tel"
+                                id="phone"
+                                name="phone"
+                                placeholder="Phone Number"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                                value={formData.phone}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label
+                                htmlFor="gender"
+                                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                            >
+                                Gender
+                            </label>
+                            <select
+                                id="gender"
+                                name="gender"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                                value={formData.gender}
+                                onChange={handleChange}
+                                required
+                            >
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <button
+                            type="submit"
+                            className={`w-full px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800 ${loading ? "opacity-50 cursor-not-allowed" : ""
+                                }`}
+                            disabled={loading}
+                        >
+                            {loading ? "Updating..." : "Update Profile"}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleDeleteUser}
+                            className="w-full px-4 py-2 mt-2 text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:outline-none dark:bg-red-700 dark:hover:bg-red-800"
+                        >
+                            Delete Profile
+                        </button>
+                    </form>
                 </div>
-            )}
-        </div>
+            </div>
         </DashboardLayout>
     );
 };
