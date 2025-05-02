@@ -32,24 +32,24 @@ const Sidebar = ({ isSidebarOpen, reminderCount }) => {
           { name: "Add New User", path: "/admin/dashboard/add" },
         ],
       },
-      {
-        name: "Task Monitoring",
-        icon: <FaTasks />,
-        subMenu: [
-          { name: "Task Analytics", path: "/admin/dashboard/" },
-          { name: "User Task Logs", path: "/admin/dashboard/" },
-          { name: "Productivity Reports", path: "/admin/dashboard/" },
-        ],
-      },
-      {
-        name: "System Settings",
-        icon: <PiPaperclipFill />,
-        subMenu: [
-          { name: "Task Categorization Rules", path: "/admin/dashboard/" },
-          { name: "Voice-to-Text Configuration", path: "/admin/dashboard/" },
-          { name: "Notification & Reminder Settings", path: "/admin/dashboard/" },
-        ],
-      },
+      // {
+      //   name: "Task Monitoring",
+      //   icon: <FaTasks />,
+      //   subMenu: [
+      //     { name: "Task Analytics", path: "/admin/dashboard/" },
+      //     { name: "User Task Logs", path: "/admin/dashboard/" },
+      //     { name: "Productivity Reports", path: "/admin/dashboard/" },
+      //   ],
+      // },
+      // {
+      //   name: "System Settings",
+      //   icon: <PiPaperclipFill />,
+      //   subMenu: [
+      //     { name: "Task Categorization Rules", path: "/admin/dashboard/" },
+      //     { name: "Voice-to-Text Configuration", path: "/admin/dashboard/" },
+      //     { name: "Notification & Reminder Settings", path: "/admin/dashboard/" },
+      //   ],
+      // },
       {
         name: "Profile Setting",
         path: currentUser?.id ? `/admin/dashboard/profile/${currentUser.id}` : "/admin/dashboard/profile",
@@ -121,9 +121,9 @@ const Sidebar = ({ isSidebarOpen, reminderCount }) => {
                     <button
                       onClick={() => toggleSubmenu(item.name)}
                       className={`flex items-center justify-between w-full p-2 rounded-lg ${activeSubmenu === item.name ||
-                          item.subMenu.some((subItem) => isActiveRoute(subItem.path))
-                          ? "bg-gray-100 dark:bg-gray-700"
-                          : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                        item.subMenu.some((subItem) => isActiveRoute(subItem.path))
+                        ? "bg-gray-100 dark:bg-gray-700"
+                        : "hover:bg-gray-100 dark:hover:bg-gray-700"
                         }`}
                     >
                       <div className="flex items-center gap-3">
@@ -145,8 +145,8 @@ const Sidebar = ({ isSidebarOpen, reminderCount }) => {
                             <Link
                               to={subItem.path}
                               className={`block p-2 rounded-lg ${isActiveRoute(subItem.path)
-                                  ? "bg-gray-100 dark:bg-gray-700"
-                                  : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                                ? "bg-gray-100 dark:bg-gray-700"
+                                : "hover:bg-gray-100 dark:hover:bg-gray-700"
                                 }`}
                             >
                               {subItem.name}
@@ -160,8 +160,8 @@ const Sidebar = ({ isSidebarOpen, reminderCount }) => {
                   <Link
                     to={item.path}
                     className={`flex items-center gap-3 p-2 rounded-lg ${isActiveRoute(item.path)
-                        ? "bg-gray-100 dark:bg-gray-700"
-                        : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                      ? "bg-gray-100 dark:bg-gray-700"
+                      : "hover:bg-gray-100 dark:hover:bg-gray-700"
                       }`}
                   >
                     {item.icon}
