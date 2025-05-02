@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { XIcon, TagIcon, PlusIcon } from "lucide-react";
+import { XIcon } from "lucide-react";
 import { useReminders } from "../RNContext/ReminderContext";
 import { useAuth } from "../../../../../context/AuthContext";
 
@@ -10,24 +10,18 @@ const ReminderForm = ({ editingId, onClose, onCRUDComplete }) => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    date: "",
-    time: "",
-    priority: "medium",
-    tags: [],
+    dueDate: "",
+    category: "", // New field
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [newTag, setNewTag] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     if (!editingId) {
       const now = new Date();
-      const today = now.toISOString().split("T")[0];
-      const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(
-        now.getMinutes()
-      ).padStart(2, "0")}`;
-      setFormData((prev) => ({ ...prev, date: today, time: currentTime }));
+      const defaultDueDate = now.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:mm
+      setFormData((prev) => ({ ...prev, dueDate: defaultDueDate }));
       setIsInitialized(true);
     }
   }, [editingId]);
@@ -43,26 +37,13 @@ const ReminderForm = ({ editingId, onClose, onCRUDComplete }) => {
 
         if (!reminderData) throw new Error("Reminder not found");
 
-        setFormData((prev) => {
-          const newData = {
-            title: reminderData.title || "",
-            description: reminderData.description || "",
-            date: reminderData.date || "",
-            time: reminderData.time || "",
-            priority: reminderData.priority || "medium",
-            tags: Array.isArray(reminderData.tags) ? reminderData.tags : [],
-          };
-          if (
-            prev.title !== newData.title ||
-            prev.description !== newData.description ||
-            prev.date !== newData.date ||
-            prev.time !== newData.time ||
-            prev.priority !== newData.priority ||
-            JSON.stringify(prev.tags) !== JSON.stringify(newData.tags)
-          ) {
-            return newData;
-          }
-          return prev;
+        setFormData({
+          title: reminderData.title || "",
+          description: reminderData.description || "",
+          dueDate: reminderData.dueDate
+            ? new Date(reminderData.dueDate).toISOString().slice(0, 16)
+            : "",
+          category: reminderData.category || "", // Load category
         });
       } catch (err) {
         setError(err.message || "Failed to load reminder data.");
@@ -80,77 +61,6 @@ const ReminderForm = ({ editingId, onClose, onCRUDComplete }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const addTag = () => {
-    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
-      setFormData((prev) => ({
-        ...prev,
-        tags: [...prev.tags, newTag.trim()],
-      }));
-      setNewTag("");
-    }
-  };
-
-  const removeTag = (tagToRemove) => {
-    setFormData((prev) => ({
-      ...prev,
-      tags: prev.tags.filter((tag) => tag !== tagToRemove),
-    }));
-  };
-
-  const validateForm = () => {
-    if (!formData.title.trim()) {
-      setError("Title is required");
-      return false;
-    }
-
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-    let isValidDate = dateRegex.test(formData.date);
-    if (!isValidDate) {
-      try {
-        const d = new Date(formData.date);
-        if (!isNaN(d.getTime())) {
-          setFormData((prev) => ({
-            ...prev,
-            date: d.toISOString().split("T")[0],
-          }));
-          isValidDate = true;
-        }
-      } catch {}
-    }
-    if (!isValidDate) {
-      setError("Invalid date format.");
-      return false;
-    }
-
-    const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
-    let isValidTime = timeRegex.test(formData.time);
-    if (!isValidTime) {
-      try {
-        const t = new Date(`2000-01-01T${formData.time}`);
-        if (!isNaN(t.getTime())) {
-          setFormData((prev) => ({
-            ...prev,
-            time: `${String(t.getHours()).padStart(2, "0")}:${String(
-              t.getMinutes()
-            ).padStart(2, "0")}`,
-          }));
-          isValidTime = true;
-        }
-      } catch {}
-    }
-    if (!isValidTime) {
-      setError("Invalid time format.");
-      return false;
-    }
-
-    if (!["low", "medium", "high"].includes(formData.priority)) {
-      setError("Invalid priority.");
-      return false;
-    }
-
-    return true;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -159,16 +69,33 @@ const ReminderForm = ({ editingId, onClose, onCRUDComplete }) => {
       return;
     }
 
-    if (!validateForm()) return;
+    if (!formData.title.trim()) {
+      setError("Title is required");
+      return;
+    }
+
+    if (formData.dueDate && isNaN(new Date(formData.dueDate).getTime())) {
+      setError("Invalid due date.");
+      return;
+    }
 
     try {
       setLoading(true);
       setError("");
 
+      const reminderData = {
+        title: formData.title,
+        description: formData.description,
+        dueDate: formData.dueDate
+          ? new Date(formData.dueDate).toISOString()
+          : null,
+        category: formData.category.trim(), // Include category
+      };
+
       if (editingId) {
-        await updateReminder(editingId, formData);
+        await updateReminder(editingId, reminderData);
       } else {
-        await addReminder(formData);
+        await addReminder(reminderData);
       }
 
       onCRUDComplete();
@@ -247,83 +174,44 @@ const ReminderForm = ({ editingId, onClose, onCRUDComplete }) => {
         />
       </div>
 
-      <div className="flex gap-4 mb-4">
-        <div className="flex-1">
-          <label className="block mb-1">Date</label>
-          <input
-            type="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
-        <div className="flex-1">
-          <label className="block mb-1">Time</label>
-          <input
-            type="time"
-            name="time"
-            value={formData.time}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-        </div>
+      <div className="mb-4">
+        <label className="block mb-1">Due Date</label>
+        <input
+          type="datetime-local"
+          name="dueDate"
+          value={formData.dueDate}
+          onChange={handleChange}
+          className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
       </div>
 
       <div className="mb-4">
-        <label className="block mb-1">Priority</label>
+        <label className="block mb-1">Category</label>
         <select
-          name="priority"
-          value={formData.priority}
+          name="category"
+          value={formData.category}
           onChange={handleChange}
           className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
-          <option value="high">High</option>
-          <option value="medium">Medium</option>
-          <option value="low">Low</option>
+          <option value="">None</option>
+          <option value="Work">Work</option>
+          <option value="Personal">Personal</option>
+          <option value="Urgent">Urgent</option>
         </select>
       </div>
 
-      <div className="mb-4">
-        <label className="block mb-2">Tags</label>
-        <div className="flex gap-2 mb-2">
-          <input
-            type="text"
-            value={newTag}
-            onChange={(e) => setNewTag(e.target.value)}
-            className="flex-1 border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="Add tag"
-          />
-          <button
-            type="button"
-            onClick={addTag}
-            className="bg-indigo-600 text-white px-3 py-2 rounded"
-          >
-            <PlusIcon className="w-4 h-4" />
-          </button>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {formData.tags.map((tag) => (
-            <span
-              key={tag}
-              className="flex items-center gap-1 px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded"
-            >
-              <TagIcon className="w-4 h-4" />
-              {tag}
-              <XIcon
-                className="w-3 h-3 cursor-pointer"
-                onClick={() => removeTag(tag)}
-              />
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex justify-end mt-6">
+      <div className="flex justify-end mt-6 gap-2">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-6 py-2 border rounded text-gray-700 hover:bg-gray-100"
+        >
+          Cancel
+        </button>
         <button
           type="submit"
           disabled={loading}
-          className="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700"
+          className="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 disabled:bg-indigo-400"
         >
           {loading ? (
             <span className="flex items-center">

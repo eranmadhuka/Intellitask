@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  CheckIcon,
-  ClockIcon,
-  TrashIcon,
-  EditIcon,
-  AlertTriangleIcon,
-  TagIcon,
-} from "lucide-react";
-import { Reminder, useReminders } from "../RNContext/ReminderContext";
+import { ClockIcon, TrashIcon, EditIcon, TagIcon } from "lucide-react";
 
 const ReminderCard = ({
   reminder,
@@ -17,28 +9,14 @@ const ReminderCard = ({
   isSelected,
   showCheckbox = false,
 }) => {
-  const { toggleComplete, deleteReminder } = useReminders();
-
   const formatDate = (dateStr) => {
+    if (!dateStr) return "No date";
     const date = new Date(dateStr);
     return new Intl.DateTimeFormat("en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
     }).format(date);
-  };
-
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case "high":
-        return "text-red-600 bg-red-50 border-red-200";
-      case "medium":
-        return "text-yellow-600 bg-yellow-50 border-yellow-200";
-      case "low":
-        return "text-green-600 bg-green-50 border-green-200";
-      default:
-        return "text-gray-600 bg-gray-50 border-gray-200";
-    }
   };
 
   return (
@@ -81,25 +59,13 @@ const ReminderCard = ({
               <div className="flex items-center text-xs text-gray-500">
                 <ClockIcon className="w-3 h-3 mr-1" />
                 <span>
-                  {formatDate(reminder.date)} {reminder.time}
+                  {formatDate(reminder.date)} {reminder.time || "No time"}
                 </span>
               </div>
-              <span
-                className={`text-xs px-2 py-0.5 rounded-full border ${getPriorityColor(
-                  reminder.priority
-                )}`}
-              >
-                {reminder.priority}
-              </span>
-              {reminder.tags.length > 0 && (
+              {reminder.category && (
                 <div className="flex items-center text-xs text-gray-500">
                   <TagIcon className="w-3 h-3 mr-1" />
-                  {reminder.tags.map((tag, index) => (
-                    <span key={index} className="mr-1">
-                      #{tag}
-                      {index < reminder.tags.length - 1 ? "," : ""}
-                    </span>
-                  ))}
+                  <span>{reminder.category}</span>
                 </div>
               )}
             </div>
@@ -122,12 +88,6 @@ const ReminderCard = ({
           </button>
         </div>
       </div>
-      {reminder.priority === "high" && !reminder.completed && (
-        <div className="mt-3 flex items-center text-xs text-red-600">
-          <AlertTriangleIcon className="w-3 h-3 mr-1" />
-          <span>High priority reminder</span>
-        </div>
-      )}
     </div>
   );
 };

@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import DashboardLayout from "../../../../components/Common/Layout/DashboardLayout";
 import axios from "axios";
 import { useAuth } from "../../../../context/AuthContext";
+import { redirect, useNavigate } from "react-router-dom";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
 const AddTask = ({ onAddTask }) => {
+  const navigate = useNavigate();
   const { currentUser, loading } = useAuth();
   const [task, setTask] = useState({
     title: "",
@@ -58,7 +60,7 @@ const AddTask = ({ onAddTask }) => {
 
       setError("");
       if (typeof onAddTask === "function") {
-        onAddTask(response.data.task); // Adjust based on backend response
+        onAddTask(response.data.task);
       }
 
       setTask({
@@ -70,6 +72,7 @@ const AddTask = ({ onAddTask }) => {
       });
 
       alert("Task added successfully!");
+      navigate('/user/dashboard/mytasks')
     } catch (error) {
       const errorMessage = error.response?.data?.error || error.response?.data?.message || "Failed to add task";
       setError(errorMessage);

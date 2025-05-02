@@ -9,7 +9,7 @@ const multer = require('multer');
 const authRoutes = require("./routes/authRoutes");
 const taskRoutes = require("./routes/taskRoute");
 const reminderRoutes = require("./routes/reminderRoutes");
-
+const analyticsRoutes = require("./routes/analytics");
 
 dotenv.config();
 const app = express();
@@ -23,6 +23,7 @@ app.use(cors());
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/reminders", reminderRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Multer setup for file uploads
 const upload = multer({ dest: "uploads/" });

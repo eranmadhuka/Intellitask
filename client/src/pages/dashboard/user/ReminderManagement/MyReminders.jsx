@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from "react";
-import {
-  PlusIcon,
-  FilterIcon,
-  CheckSquareIcon,
-  TagIcon,
-  TrashIcon,
-  SearchIcon,
-} from "lucide-react";
+import { PlusIcon, CheckSquareIcon, TrashIcon, SearchIcon } from "lucide-react";
 import ReminderCard from "./RNComponents/ReminderCard";
 import ReminderForm from "./RNComponents/ReminderForm";
 import DashboardLayout from "../../../../components/Common/Layout/DashboardLayout";
 import alarmSoundFile from "../../../../assets/audio/ring.mp3";
 import ReminderProvider, { useReminders } from "./RNContext/ReminderContext";
 import { useAuth } from "../../../../context/AuthContext";
+
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
 const MyReminders = () => {
   const { reminders, fetchReminders, deleteReminder, toggleComplete } =
@@ -23,7 +18,6 @@ const MyReminders = () => {
   const [sortBy, setSortBy] = useState("date-asc");
   const [filterBy, setFilterBy] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedTag, setSelectedTag] = useState(null);
   const [selectedReminders, setSelectedReminders] = useState([]);
   const [activeReminder, setActiveReminder] = useState(null);
   const [alarmSound, setAlarmSound] = useState(null);
@@ -57,8 +51,12 @@ const MyReminders = () => {
   const checkForUpcomingReminders = () => {
     const now = new Date();
     const upcomingReminder = reminders.find((reminder) => {
-      const reminderTime = new Date(reminder.date + "T" + reminder.time);
-      return reminderTime > now && reminderTime - now <= 5 * 60 * 1000;
+      const reminderTime = new Date(reminder.dueDate);
+      return (
+        reminderTime > now &&
+        reminderTime - now <= 5 * 60 * 1000 &&
+        !reminder.completed
+      );
     });
 
     if (
@@ -87,6 +85,7 @@ const MyReminders = () => {
     try {
       await Promise.all(selectedReminders.map((id) => deleteReminder(id)));
       setSelectedReminders([]);
+      setError(null);
     } catch (error) {
       console.error("Error deleting reminders:", error);
       if (error.response?.status === 401) {
@@ -111,6 +110,7 @@ const MyReminders = () => {
 
     try {
       await deleteReminder(id);
+      setError(null);
     } catch (error) {
       console.error("Error deleting reminder:", error);
       if (error.response?.status === 401) {
@@ -131,6 +131,7 @@ const MyReminders = () => {
     try {
       await Promise.all(selectedReminders.map((id) => toggleComplete(id)));
       setSelectedReminders([]);
+      setError(null);
     } catch (error) {
       console.error("Error marking reminders as done:", error);
       if (error.response?.status === 401) {
@@ -157,10 +158,6 @@ const MyReminders = () => {
     setEditingId(undefined);
   };
 
-  const allTags = Array.from(
-    new Set(reminders.flatMap((reminder) => reminder.tags || []))
-  ).sort();
-
   const filteredReminders = reminders.filter((reminder) => {
     const matchesSearch =
       searchTerm === "" ||
@@ -173,29 +170,17 @@ const MyReminders = () => {
       matchesFilter = reminder.completed;
     } else if (filterBy === "active") {
       matchesFilter = !reminder.completed;
-    } else if (["high", "medium", "low"].includes(filterBy)) {
-      matchesFilter = reminder.priority === filterBy;
     }
 
-    const matchesTag =
-      !selectedTag || (reminder.tags && reminder.tags.includes(selectedTag));
-    return matchesSearch && matchesFilter && matchesTag;
+    return matchesSearch && matchesFilter;
   });
 
   const sortedReminders = [...filteredReminders].sort((a, b) => {
-    const priorityWeights = { high: 0, medium: 1, low: 2 };
-
     switch (sortBy) {
       case "date-asc":
-        return (
-          new Date(a.date + "T" + a.time) - new Date(b.date + "T" + b.time)
-        );
+        return new Date(a.dueDate) - new Date(b.dueDate);
       case "date-desc":
-        return (
-          new Date(b.date + "T" + b.time) - new Date(a.date + "T" + a.time)
-        );
-      case "priority":
-        return priorityWeights[a.priority] - priorityWeights[b.priority];
+        return new Date(b.dueDate) - new Date(a.dueDate);
       case "title":
         return a.title.localeCompare(b.title);
       default:
@@ -222,6 +207,7 @@ const MyReminders = () => {
         alarmSound?.pause();
         alarmSound.currentTime = 0;
         setActiveReminder(null);
+        setError(null);
       } catch (error) {
         console.error("Error marking reminder as completed:", error);
         if (error.response?.status === 401) {
@@ -292,9 +278,6 @@ const MyReminders = () => {
                 <option value="all">All</option>
                 <option value="active">Active</option>
                 <option value="completed">Completed</option>
-                <option value="high">High Priority</option>
-                <option value="medium">Medium Priority</option>
-                <option value="low">Low Priority</option>
               </select>
               <select
                 value={sortBy}
@@ -303,37 +286,9 @@ const MyReminders = () => {
               >
                 <option value="date-asc">Date (Asc)</option>
                 <option value="date-desc">Date (Desc)</option>
-                <option value="priority">Priority</option>
                 <option value="title">Title</option>
               </select>
             </div>
-            {allTags.length > 0 && (
-              <div className="mt-4 flex flex-wrap gap-2">
-                <button
-                  onClick={() => setSelectedTag(null)}
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    !selectedTag
-                      ? "bg-indigo-600 dark:bg-indigo-500 text-white"
-                      : "bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200"
-                  } hover:bg-indigo-500 dark:hover:bg-indigo-400 hover:text-white transition-all`}
-                >
-                  All Tags
-                </button>
-                {allTags.map((tag) => (
-                  <button
-                    key={tag}
-                    onClick={() => setSelectedTag(tag)}
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      selectedTag === tag
-                        ? "bg-indigo-600 dark:bg-indigo-500 text-white"
-                        : "bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200"
-                    } hover:bg-indigo-500 dark:hover:bg-indigo-400 hover:text-white transition-all`}
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
           <div className="space-y-6">
@@ -365,7 +320,15 @@ const MyReminders = () => {
                       className="transform transition-all hover:scale-105 duration-200"
                     >
                       <ReminderCard
-                        reminder={reminder}
+                        reminder={{
+                          ...reminder,
+                          date: new Date(reminder.dueDate)
+                            .toISOString()
+                            .split("T")[0],
+                          time: new Date(reminder.dueDate)
+                            .toTimeString()
+                            .slice(0, 5),
+                        }}
                         onEdit={handleEditReminder}
                         onToggleSelect={toggleSelectReminder}
                         onDelete={handleDeleteReminder}
@@ -420,7 +383,7 @@ const MyReminders = () => {
                   {activeReminder.description}
                 </p>
                 <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-                  Due at {activeReminder.time} on {activeReminder.date}
+                  Due at {new Date(activeReminder.dueDate).toLocaleString()}
                 </p>
                 <button
                   onClick={closeAlarm}

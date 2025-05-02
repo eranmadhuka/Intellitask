@@ -23,12 +23,10 @@ const AddUser = () => {
     const [popupMessage, setPopupMessage] = useState('');
     const navigate = useNavigate();
 
-    // Handle input changes
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // Validate form fields
     const validateForm = () => {
         let newErrors = {};
 
@@ -56,25 +54,22 @@ const AddUser = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    // Handle form submission
     const handleAddUser = async (e) => {
         e.preventDefault();
         setLoading(true);
-    
-        // Normalize gender value before submission
+
         const normalizedFormData = {
             ...formData,
             gender: formData.gender ? formData.gender.toLowerCase() : ''
         };
-    
+
         if (!validateForm()) {
             setLoading(false);
             return;
         }
-    
+
         try {
             await axios.post(`http://localhost:3001/api/auth/add`, normalizedFormData);
-    
             setPopupMessage('User added successfully!');
             setShowPopup(true);
             setTimeout(() => {
@@ -87,79 +82,155 @@ const AddUser = () => {
             setLoading(false);
         }
     };
-    
 
     return (
         <DashboardLayout>
-        <div className="bg-gray-100 dark:bg-slate-900 min-h-screen flex items-center justify-center">
-            <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md dark:bg-slate-800">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Add New User</h1>
-                <form className="space-y-4" onSubmit={handleAddUser}>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">First Name</label>
-                            <input type="text" name="firstName" className="w-full px-4 py-2 border rounded-lg" value={formData.firstName} onChange={handleChange} />
-                            {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName}</p>}
+            <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+                <div className="w-full max-w-lg bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-8">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Add New User</h1>
+                    <form className="space-y-6" onSubmit={handleAddUser}>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">First Name</label>
+                                <input
+                                    type="text"
+                                    name="firstName"
+                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white ciem:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    value={formData.firstName}
+                                    onChange={handleChange}
+                                />
+                                {errors.firstName && <p className="mt-1 text-sm text-red-500">{errors.firstName}</p>}
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last Name</label>
+                                <input
+                                    type="text"
+                                    name="lastName"
+                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                    value={formData.lastName}
+                                    onChange={handleChange}
+                                />
+                                {errors.lastName && <p className="mt-1 text-sm text-red-500">{errors.lastName}</p>}
+                            </div>
                         </div>
+
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</label>
-                            <input type="text" name="lastName" className="w-full px-4 py-2 border rounded-lg" value={formData.lastName} onChange={handleChange} />
-                            {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName}</p>}
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Username</label>
+                            <input
+                                type="text"
+                                name="username"
+                                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                value={formData.username}
+                                onChange={handleChange}
+                            />
+                            {errors.username && <p className="mt-1 text-sm text-red-500">{errors.username}</p>}
                         </div>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
-                        <input type="text" name="username" className="w-full px-4 py-2 border rounded-lg" value={formData.username} onChange={handleChange} />
-                        {errors.username && <p className="text-red-500 text-sm">{errors.username}</p>}
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-                        <input type="email" name="email" className="w-full px-4 py-2 border rounded-lg" value={formData.email} onChange={handleChange} />
-                        {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone</label>
-                        <input type="tel" name="phone" className="w-full px-4 py-2 border rounded-lg" value={formData.phone} onChange={handleChange} />
-                        {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Gender</label>
-                        <select name="gender" className="w-full px-4 py-2 border rounded-lg" value={formData.gender} onChange={handleChange}>
-                            <option value="">Select gender</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="other">Other</option>
-                        </select>
-                        {errors.gender && <p className="text-red-500 text-sm">{errors.gender}</p>}
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-                        <input type="password" name="password" className="w-full px-4 py-2 border rounded-lg" value={formData.password} onChange={handleChange} />
-                        {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Confirm Password</label>
-                        <input type="password" name="confirmPassword" className="w-full px-4 py-2 border rounded-lg" value={formData.confirmPassword} onChange={handleChange} />
-                        {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
-                    </div>
-                    <button type="submit" className={`w-full px-4 py-2 text-white bg-blue-600 rounded-lg ${loading ? 'opacity-50 cursor-not-allowed' : ''}`} disabled={loading}>
-                        {loading ? 'Adding...' : 'Add User'}
-                    </button>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                        <Link to="/admin/dashboard/users" className="text-blue-600 hover:underline dark:text-blue-400">Back to Users</Link>
-                    </p>
-                </form>
-            </div>
-            {showPopup && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white dark:bg-slate-700 p-6 rounded-lg shadow-lg text-center">
-                        <p className="text-lg text-gray-900 dark:text-white">{popupMessage}</p>
-                        <button onClick={() => setShowPopup(false)} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">OK</button>
-                    </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                            <input
+                                type="email"
+                                name="email"
+                                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                value={formData.email}
+                                onChange={handleChange}
+                            />
+                            {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
+                            <input
+                                type="tel"
+                                name="phone"
+                                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                value={formData.phone}
+                                onChange={handleChange}
+                            />
+                            {errors.phone && <p className="mt-1 text-sm text-red-500">{errors.phone}</p>}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gender</label>
+                            <select
+                                name="gender"
+                                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                value={formData.gender}
+                                onChange={handleChange}
+                            >
+                                <option value="">Select gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            {errors.gender && <p className="mt-1 text-sm text-red-500">{errors.gender}</p>}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+                            <input
+                                type="password"
+                                name="password"
+                                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                value={formData.password}
+                                onChange={handleChange}
+                            />
+                            {errors.password && <p className="mt-1 text-sm text-red-500">{errors.password}</p>}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm Password</label>
+                            <input
+                                type="password"
+                                name="confirmPassword"
+                                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                            />
+                            {errors.confirmPassword && <p className="mt-1 text-sm text-red-500">{errors.confirmPassword}</p>}
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <button
+                                type="submit"
+                                className={`flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                    </svg>
+                                ) : (
+                                    <i className="fas fa-user-plus"></i>
+                                )}
+                                {loading ? 'Adding...' : 'Add User'}
+                            </button>
+                            <Link
+                                to="/admin/dashboard/users"
+                                className="flex-1 px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-center flex items-center justify-center gap-2"
+                            >
+                                <i className="fas fa-arrow-left"></i> Back to Users
+                            </Link>
+                        </div>
+                    </form>
                 </div>
-            )}
-        </div>
-    </DashboardLayout>
+
+                {showPopup && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 max-w-sm w-full">
+                            <p className="text-lg text-gray-900 dark:text-white mb-4">{popupMessage}</p>
+                            <button
+                                onClick={() => setShowPopup(false)}
+                                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </DashboardLayout>
     );
 };
 
