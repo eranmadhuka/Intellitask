@@ -1,274 +1,362 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { XIcon } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { XIcon, TagIcon, PlusIcon } from "lucide-react";
 import { useReminders } from "../RNContext/ReminderContext";
+import { useAuth } from "../../../../../context/AuthContext";
 
-const API_URL = "http://localhost:3001/api";
-
-const ReminderForm = ({ editingId, onClose, onSave }) => {
-  const { addReminder, updateReminder } = useReminders();
-  const [tagsInput, setTagsInput] = useState("");
-  const [errors, setErrors] = useState({});
+const ReminderForm = ({ editingId, onClose, onCRUDComplete }) => {
+  const { currentUser } = useAuth();
+  const { addReminder, updateReminder, getReminderById } = useReminders();
 
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    date: new Date().toISOString().split("T")[0],
-    time: new Date().toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    }),
+    date: "",
+    time: "",
     priority: "medium",
-    completed: false,
     tags: [],
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [newTag, setNewTag] = useState("");
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  // Validate the form
-  const validateForm = () => {
-    const currentErrors = {};
-    const { title, date, time } = formData;
-
-    // Title validation
-    if (!title.trim()) currentErrors.title = "Title is required";
-
-    // Date validation (must be today or in the future)
-    const today = new Date().toISOString().split("T")[0];
-    if (date < today)
-      currentErrors.date = "Date must be today or in the future";
-
-    // Time validation based on date selection
-    if (date === today) {
-      const now = new Date();
-      const selectedTime = new Date(`${date}T${time}`);
-      if (selectedTime <= now) {
-        currentErrors.time = "Time must be in the future for today's date";
-      }
-    }
-
-    // Tags validation (if any tags are entered, make sure they are non-empty)
-    const tagsArray = tagsInput
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag) => tag.length > 0);
-    if (tagsArray.length === 0)
-      currentErrors.tags = "At least one tag is required";
-
-    setErrors(currentErrors);
-
-    return Object.keys(currentErrors).length === 0;
-  };
-
-  // Fetch reminder if editing
   useEffect(() => {
-    if (editingId) {
-      axios
-        .get(`${API_URL}/reminders/${editingId}`)
-        .then((response) => {
-          setFormData(response.data);
-          setTagsInput(response.data.tags.join(", "));
-        })
-        .catch((error) => console.error("Error fetching reminder:", error));
+    if (!editingId) {
+      const now = new Date();
+      const today = now.toISOString().split("T")[0];
+      const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(
+        now.getMinutes()
+      ).padStart(2, "0")}`;
+      setFormData((prev) => ({ ...prev, date: today, time: currentTime }));
+      setIsInitialized(true);
     }
   }, [editingId]);
 
+  useEffect(() => {
+    const loadReminder = async () => {
+      if (!editingId || !currentUser) return;
+
+      try {
+        setLoading(true);
+        setError("");
+        const reminderData = await getReminderById(editingId);
+
+        if (!reminderData) throw new Error("Reminder not found");
+
+        setFormData((prev) => {
+          const newData = {
+            title: reminderData.title || "",
+            description: reminderData.description || "",
+            date: reminderData.date || "",
+            time: reminderData.time || "",
+            priority: reminderData.priority || "medium",
+            tags: Array.isArray(reminderData.tags) ? reminderData.tags : [],
+          };
+          if (
+            prev.title !== newData.title ||
+            prev.description !== newData.description ||
+            prev.date !== newData.date ||
+            prev.time !== newData.time ||
+            prev.priority !== newData.priority ||
+            JSON.stringify(prev.tags) !== JSON.stringify(newData.tags)
+          ) {
+            return newData;
+          }
+          return prev;
+        });
+      } catch (err) {
+        setError(err.message || "Failed to load reminder data.");
+      } finally {
+        setLoading(false);
+        setIsInitialized(true);
+      }
+    };
+
+    loadReminder();
+  }, [editingId, currentUser, getReminderById]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleTagsChange = (e) => {
-    setTagsInput(e.target.value);
+  const addTag = () => {
+    if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
+      setFormData((prev) => ({
+        ...prev,
+        tags: [...prev.tags, newTag.trim()],
+      }));
+      setNewTag("");
+    }
+  };
+
+  const removeTag = (tagToRemove) => {
+    setFormData((prev) => ({
+      ...prev,
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
+    }));
+  };
+
+  const validateForm = () => {
+    if (!formData.title.trim()) {
+      setError("Title is required");
+      return false;
+    }
+
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    let isValidDate = dateRegex.test(formData.date);
+    if (!isValidDate) {
+      try {
+        const d = new Date(formData.date);
+        if (!isNaN(d.getTime())) {
+          setFormData((prev) => ({
+            ...prev,
+            date: d.toISOString().split("T")[0],
+          }));
+          isValidDate = true;
+        }
+      } catch {}
+    }
+    if (!isValidDate) {
+      setError("Invalid date format.");
+      return false;
+    }
+
+    const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    let isValidTime = timeRegex.test(formData.time);
+    if (!isValidTime) {
+      try {
+        const t = new Date(`2000-01-01T${formData.time}`);
+        if (!isNaN(t.getTime())) {
+          setFormData((prev) => ({
+            ...prev,
+            time: `${String(t.getHours()).padStart(2, "0")}:${String(
+              t.getMinutes()
+            ).padStart(2, "0")}`,
+          }));
+          isValidTime = true;
+        }
+      } catch {}
+    }
+    if (!isValidTime) {
+      setError("Invalid time format.");
+      return false;
+    }
+
+    if (!["low", "medium", "high"].includes(formData.priority)) {
+      setError("Invalid priority.");
+      return false;
+    }
+
+    return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const processedTags = tagsInput
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag) => tag.length > 0);
-    const reminderWithTags = { ...formData, tags: processedTags };
+    if (!currentUser) {
+      setError("You must be logged in.");
+      return;
+    }
 
     if (!validateForm()) return;
 
     try {
-      let response;
+      setLoading(true);
+      setError("");
+
       if (editingId) {
-        response = await axios.put(
-          `${API_URL}/reminders/${editingId}`,
-          reminderWithTags
-        );
-        updateReminder(response.data);
-        alert("Reminder updated successfully!");
+        await updateReminder(editingId, formData);
       } else {
-        response = await axios.post(`${API_URL}/reminders`, reminderWithTags);
-        addReminder(response.data);
-        alert("Reminder created successfully!");
+        await addReminder(formData);
       }
 
-      // Only close and refresh if axios call succeeded
-      onSave();
-      onClose();
-    } catch (error) {
-      console.error("Error saving reminder:", error);
-      alert("Failed to save reminder.");
+      onCRUDComplete();
+    } catch (err) {
+      setError(err.message || "Failed to save reminder.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 bg-blue-600 text-white">
-          <h2 className="text-xl font-semibold">
-            {editingId ? "Edit Reminder" : "Create New Reminder"}
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-white hover:bg-blue-700 rounded-full p-1"
-          >
+  if (loading && !isInitialized && editingId) {
+    return (
+      <div className="p-6 text-center">
+        <div className="animate-spin h-12 w-12 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto"></div>
+        <p className="mt-4">Loading reminder...</p>
+      </div>
+    );
+  }
+
+  if (error && editingId && !isInitialized) {
+    return (
+      <div className="p-6 bg-white dark:bg-gray-800 rounded-lg">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-bold">Error</h2>
+          <button onClick={onClose}>
             <XIcon className="w-5 h-5" />
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="mb-4">
-            <label
-              htmlFor="title"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Title *
-            </label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {errors.title && (
-              <p className="text-red-500 text-xs">{errors.title}</p>
-            )}
-          </div>
-          <div className="mb-4">
-            <label
-              htmlFor="description"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Description
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              rows={3}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label
-                htmlFor="date"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Date *
-              </label>
-              <input
-                type="date"
-                id="date"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {errors.date && (
-                <p className="text-red-500 text-xs">{errors.date}</p>
-              )}
-            </div>
-            <div>
-              <label
-                htmlFor="time"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Time *
-              </label>
-              <input
-                type="time"
-                id="time"
-                name="time"
-                value={formData.time}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              {errors.time && (
-                <p className="text-red-500 text-xs">{errors.time}</p>
-              )}
-            </div>
-          </div>
-          <div className="mb-4">
-            <label
-              htmlFor="priority"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Priority
-            </label>
-            <select
-              id="priority"
-              name="priority"
-              value={formData.priority}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
-          </div>
-          <div className="mb-6">
-            <label
-              htmlFor="tags"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Tags (comma separated)
-            </label>
-            <input
-              type="text"
-              id="tags"
-              name="tags"
-              value={tagsInput}
-              onChange={handleTagsChange}
-              placeholder="work, personal, health"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            {errors.tags && (
-              <p className="text-red-500 text-xs">{errors.tags}</p>
-            )}
-          </div>
-          <div className="flex justify-end space-x-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              {editingId ? "Update" : "Create"}
-            </button>
-          </div>
-        </form>
+        <p className="mt-4 text-red-600">{error}</p>
+        <button
+          onClick={onClose}
+          className="mt-6 px-4 py-2 bg-indigo-600 text-white rounded"
+        >
+          Close
+        </button>
       </div>
-    </div>
+    );
+  }
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl max-w-lg w-full"
+    >
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">
+          {editingId ? "Edit Reminder" : "New Reminder"}
+        </h2>
+        <button onClick={onClose} type="button">
+          <XIcon className="w-6 h-6 text-gray-500" />
+        </button>
+      </div>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">{error}</div>
+      )}
+
+      <div className="mb-4">
+        <label className="block mb-1">Title</label>
+        <input
+          type="text"
+          name="title"
+          value={formData.title}
+          onChange={handleChange}
+          className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      </div>
+
+      <div className="mb-4">
+        <label className="block mb-1">Description</label>
+        <textarea
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+          className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      </div>
+
+      <div className="flex gap-4 mb-4">
+        <div className="flex-1">
+          <label className="block mb-1">Date</label>
+          <input
+            type="date"
+            name="date"
+            value={formData.date}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+        <div className="flex-1">
+          <label className="block mb-1">Time</label>
+          <input
+            type="time"
+            name="time"
+            value={formData.time}
+            onChange={handleChange}
+            className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <label className="block mb-1">Priority</label>
+        <select
+          name="priority"
+          value={formData.priority}
+          onChange={handleChange}
+          className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+
+      <div className="mb-4">
+        <label className="block mb-2">Tags</label>
+        <div className="flex gap-2 mb-2">
+          <input
+            type="text"
+            value={newTag}
+            onChange={(e) => setNewTag(e.target.value)}
+            className="flex-1 border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="Add tag"
+          />
+          <button
+            type="button"
+            onClick={addTag}
+            className="bg-indigo-600 text-white px-3 py-2 rounded"
+          >
+            <PlusIcon className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {formData.tags.map((tag) => (
+            <span
+              key={tag}
+              className="flex items-center gap-1 px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded"
+            >
+              <TagIcon className="w-4 h-4" />
+              {tag}
+              <XIcon
+                className="w-3 h-3 cursor-pointer"
+                onClick={() => removeTag(tag)}
+              />
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex justify-end mt-6">
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700"
+        >
+          {loading ? (
+            <span className="flex items-center">
+              <svg
+                className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              {editingId ? "Updating..." : "Creating..."}
+            </span>
+          ) : editingId ? (
+            "Update Reminder"
+          ) : (
+            "Create Reminder"
+          )}
+        </button>
+      </div>
+    </form>
   );
 };
 

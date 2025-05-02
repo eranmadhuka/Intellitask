@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import DashboardLayout from "../../../../components/Common/Layout/DashboardLayout";
 import axios from "axios";
 import { useAuth } from "../../../../context/AuthContext";
-import SmartPrioritization from "../../../../components/SmartPriority/SmartPrioritization";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -84,16 +83,14 @@ const AddTask = ({ onAddTask }) => {
         Add Task
       </h1>
       <p className="text-customGray text-sm dark:text-gray-400">
-        Manage your tasks efficiently with smart prioritization.
+        Manage your tasks efficiently by adding them manually.
       </p>
 
-      <SmartPrioritization />
-
-      {/* Regular Task Form */}
+      {/* Task Form */}
       <div className="w-full mt-5">
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md h-full">
           <h2 className="text-2xl font-bold mb-4 dark:text-gray-300">
-            Add Task Manually
+            Add New Task
           </h2>
           {error && <p className="text-red-500 mb-2">{error}</p>}
           <form onSubmit={handleSubmit} className="space-y-4">

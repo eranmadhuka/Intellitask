@@ -100,7 +100,7 @@ function UserDashboardLayout() {
 
       <Route path="/addReminder" element={<AddReminder />} />
       <Route path="/myReminders" element={<MyReminders />} />
-      <Route path="/myReminders" element={<MyReminders />} />
+      {/* <Route path="/myReminders" element={<MyReminders />} /> */}
 
       <Route path="/notifications" element={<Notifications />} />
       <Route path="/Settings" element={<Settings />} />
