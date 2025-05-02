@@ -5,12 +5,13 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001"; // Use env variable or fallback
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const { login, currentUser } = useAuth();
   const navigate = useNavigate();
 
@@ -23,6 +24,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError(""); // Clear any previous errors
 
     try {
       const { data } = await axios.post(`${API_URL}/api/auth/login`, {
@@ -30,10 +32,6 @@ const Login = () => {
         password,
       });
 
-      // Log the response to debug
-      console.log("Login response:", data);
-
-      // Adjust based on actual backend response
       const { user, token, additionalData } = data;
 
       if (!user || !token || !user.role) {
@@ -47,13 +45,10 @@ const Login = () => {
         localStorage.setItem("additionalData", JSON.stringify(additionalData));
       }
 
-      // Pass user data with token to login function
       login({ ...user, token }, additionalData);
-
       toast.success("Login successful! Redirecting...");
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Login failed";
-      toast.error(errorMessage);
+      setError("Invalid email or password. Please try again.");
       console.error("Login error:", error);
     } finally {
       setLoading(false);
@@ -67,6 +62,11 @@ const Login = () => {
           Sign in to your account
         </h1>
         <form className="space-y-6" onSubmit={handleLogin}>
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+              <span className="block sm:inline">{error}</span>
+            </div>
+          )}
           <div>
             <label
               htmlFor="email"
@@ -126,8 +126,7 @@ const Login = () => {
           </div>
           <button
             type="submit"
-            className={`w-full px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800 ${loading ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+            className={`w-full px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
             disabled={loading}
           >
             {loading ? "Signing in..." : "Sign in"}

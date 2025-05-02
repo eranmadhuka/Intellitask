@@ -90,40 +90,93 @@ router.get("/admin", authMiddleware, (req, res) => {
 router.post("/forgot-password", async (req, res) => {
     try {
         const { email } = req.body;
-        const user = await User.findOne({ email }); // Find user by email
 
-        if (!user) return res.status(400).json({ message: "User not found" });
+        // Debug log
+        console.log("Forgot password request for:", email);
 
-        // Generate and store reset token
-        const resetToken = user.generateResetToken(); // Ensure this method is implemented in the User model
-        await user.save();
+        // Find user
+        const user = await User.findOne({ email });
 
-        // Password reset link
-        const resetLink = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+        if (!user) {
+            console.log("User not found:", email);
+            // For security, still return success even if user not found
+            return res.json({
+                message: "If your email is registered, you will receive a password reset link shortly"
+            });
+        }
 
-        // Configure nodemailer for sending emails
-        const transporter = nodemailer.createTransport({
-            service: "gmail",
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
-            },
-        });
+        console.log("User found, generating token");
 
+        // Generate reset token - wrap in try/catch to catch any errors here
+        let resetToken;
+        try {
+            resetToken = user.generateResetToken();
+            await user.save();
+            console.log("Reset token generated and saved");
+        } catch (tokenError) {
+            console.error("Error generating token:", tokenError);
+            return res.status(500).json({ message: "Error generating reset token" });
+        }
+
+        // Create reset URL
+        const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+        console.log("Reset URL:", resetUrl);
+
+        // Check if environment variables are set
+        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+            console.error("Email environment variables not set");
+            return res.status(500).json({ message: "Email configuration error" });
+        }
+
+        // Configure email with more detailed error logging
+        let transporter;
+        try {
+            transporter = nodemailer.createTransport({
+                service: "gmail",
+                auth: {
+                    user: process.env.EMAIL_USER,
+                    pass: process.env.EMAIL_PASS,
+                },
+            });
+
+            console.log("Email transporter created");
+        } catch (emailError) {
+            console.error("Error creating email transporter:", emailError);
+            return res.status(500).json({ message: "Email configuration error" });
+        }
+
+        // Email content
         const mailOptions = {
-            from: process.env.EMAIL_USER,
+            from: `"Your App Name" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: "Password Reset Request",
-            text: `Click the link to reset your password: ${resetLink}`,
+            html: `
+                <h1>Password Reset Request</h1>
+                <p>You requested a password reset. Please click the link below to reset your password:</p>
+                <a href="${resetUrl}" style="display: inline-block; background-color: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reset Password</a>
+                <p>This link is valid for 1 hour.</p>
+                <p>If you didn't request this, please ignore this email.</p>
+            `,
         };
 
-        transporter.sendMail(mailOptions, (err, _info) => {
-            if (err) {
-                return res.status(500).json({ message: "Error sending email" });
-            }
-            res.json({ message: "Password reset link sent to email" });
-        });
+        console.log("Attempting to send email to:", email);
+
+        // Send email with proper promise handling
+        try {
+            await transporter.sendMail(mailOptions);
+            console.log("Email sent successfully");
+
+            // Send success response
+            res.json({
+                message: "If your email is registered, you will receive a password reset link shortly"
+            });
+        } catch (sendError) {
+            console.error("Error sending email:", sendError);
+            res.status(500).json({ message: "Error sending email. Please try again later." });
+        }
+
     } catch (error) {
+        console.error("Password reset error:", error);
         res.status(500).json({ message: "Server error. Please try again later." });
     }
 });
@@ -134,26 +187,51 @@ router.post("/reset-password/:token", async (req, res) => {
         const { token } = req.params;
         const { newPassword } = req.body;
 
-        // Hash the token and find the user
+        console.log('Reset password request for token:', token);
+
+        // Validate password strength
+        if (!newPassword || newPassword.length < 8) {
+            console.log('Password validation failed');
+            return res.status(400).json({
+                message: "Password must be at least 8 characters long",
+            });
+        }
+
+        // Hash token to match stored version
         const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+        console.log('Hashed token:', hashedToken);
+
+        // Find user with this token and valid expiry
         const user = await User.findOne({
             resetToken: hashedToken,
-            resetTokenExpiry: { $gt: Date.now() }, // Check if token is still valid
+            resetTokenExpiry: { $gt: Date.now() },
         });
 
         if (!user) {
-            return res.status(400).json({ message: "Invalid or expired token" });
+            console.log('No user found or token expired');
+            return res.status(400).json({
+                message: "Password reset link is invalid or has expired",
+            });
         }
 
-        // Hash new password
+        console.log('User found, updating password');
+
+        // Update password
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(newPassword, salt);
+
+        // Clear reset token fields
         user.resetToken = undefined;
         user.resetTokenExpiry = undefined;
-        await user.save();
 
-        res.json({ message: "Password reset successfully. You can now log in." });
+        await user.save();
+        console.log('Password reset successful');
+
+        res.json({
+            message: "Password reset successfully. You can now log in with your new password.",
+        });
     } catch (error) {
+        console.error("Password reset error:", error);
         res.status(500).json({ message: "Server error. Please try again later." });
     }
 });
