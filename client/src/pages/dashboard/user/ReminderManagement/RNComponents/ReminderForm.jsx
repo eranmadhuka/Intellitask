@@ -11,20 +11,22 @@ const ReminderForm = ({ editingId, onClose, onCRUDComplete }) => {
     title: "",
     description: "",
     dueDate: "",
-    category: "", // New field
+    category: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isInitialized, setIsInitialized] = useState(false);
 
+  // Get current date and time for minimum date validation
+  const now = new Date();
+  const minDate = now.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:mm
+
   useEffect(() => {
     if (!editingId) {
-      const now = new Date();
-      const defaultDueDate = now.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:mm
-      setFormData((prev) => ({ ...prev, dueDate: defaultDueDate }));
+      setFormData((prev) => ({ ...prev, dueDate: minDate }));
       setIsInitialized(true);
     }
-  }, [editingId]);
+  }, [editingId, minDate]);
 
   useEffect(() => {
     const loadReminder = async () => {
@@ -43,7 +45,7 @@ const ReminderForm = ({ editingId, onClose, onCRUDComplete }) => {
           dueDate: reminderData.dueDate
             ? new Date(reminderData.dueDate).toISOString().slice(0, 16)
             : "",
-          category: reminderData.category || "", // Load category
+          category: reminderData.category || "",
         });
       } catch (err) {
         setError(err.message || "Failed to load reminder data.");
@@ -79,6 +81,15 @@ const ReminderForm = ({ editingId, onClose, onCRUDComplete }) => {
       return;
     }
 
+    // Validate that dueDate is not in the past
+    if (formData.dueDate) {
+      const selectedDate = new Date(formData.dueDate);
+      if (selectedDate < now) {
+        setError("Due date cannot be in the past.");
+        return;
+      }
+    }
+
     try {
       setLoading(true);
       setError("");
@@ -89,7 +100,7 @@ const ReminderForm = ({ editingId, onClose, onCRUDComplete }) => {
         dueDate: formData.dueDate
           ? new Date(formData.dueDate).toISOString()
           : null,
-        category: formData.category.trim(), // Include category
+        category: formData.category.trim(),
       };
 
       if (editingId) {
@@ -181,6 +192,7 @@ const ReminderForm = ({ editingId, onClose, onCRUDComplete }) => {
           name="dueDate"
           value={formData.dueDate}
           onChange={handleChange}
+          min={minDate} // Restrict past dates
           className="w-full border px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
       </div>
