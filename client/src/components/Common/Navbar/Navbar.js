@@ -4,15 +4,11 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import Logo from '../../../assets/images/logo.png';
 import Switcher from '../../ui/Switcher';
-// import Notification from '../../Dashboard/Notification';
-// import ToggleSidebarButton from '../Sidebar/ToggleSidebarButton';
-
 import { FaBars, FaUser } from "react-icons/fa";
 import { IoLogOut } from "react-icons/io5";
 import { IoSettings } from "react-icons/io5";
 import { RiLockPasswordFill } from "react-icons/ri";
 const API_URL = process.env.REACT_APP_API_URL;
-
 
 const dropdownMenu = [
     {
@@ -100,40 +96,17 @@ const Navbar = ({ isSidebarOpen, toggleSidebar }) => {
                             >
                                 <div className="p-3 border-b border-gray-200 dark:border-gray-700">
                                     <div className="flex items-center space-x-3">
-                                        <img
-                                            src={`${API_URL}/${currentUser?.avatar}`}
-                                            alt="Profile"
-                                            className="w-10 h-10 rounded-full object-cover"
-                                        />
+
                                         <div className="flex flex-col items-start space-y-0 ml-2">
-                                            {/* <h3 className="text-sm font-semibold dark:text-white text-left">{additionalData?.studentId || additionalData?.employeeId}</h3> */}
                                             <h3 className="text-sm font-semibold dark:text-white text-left">{currentUser?.firstName} {currentUser?.lastName}</h3>
                                             <p className="text-xs text-start text-gray-500 dark:text-gray-400 capitalize">{currentUser?.role}</p>
                                         </div>
-                                        <svg className="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
-                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
-                                        </svg>
+
                                     </div>
                                 </div>
                             </button>
                         </div>
-                        {isOpened && (
-                            <div className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabIndex="-1">
-                                <div role="none">
-                                    {dropdownMenu.map((item, index) => (
-                                        <Link
-                                            key={index}
-                                            to={item.link}
-                                            onClick={item.title === 'Logout' ? handleLogout : null}
-                                            className='flex text-gray-700 px-4 py-2 text-sm hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-900'
-                                        >
-                                            <span className='text-customGray dark:text-gray-400'>{item.icon}</span>
-                                            <span className='text-customGray ms-3 dark:text-gray-400'>{item.title}</span>
-                                        </Link>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+
                     </div>
                 </div>
             </div>

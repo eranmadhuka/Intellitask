@@ -96,7 +96,7 @@ function UserDashboardLayout() {
       <Route index element={<UserDashboard />} />
       <Route path="/addtask" element={<AddTask />} />
       <Route path="/mytasks" element={<MyTasks />} />
-      <Route path="/profile" element={<UserProfile />} />
+      {/* <Route path="/profile" element={<UserProfile />} /> */}
 
       <Route path="/addReminder" element={<AddReminder />} />
       <Route path="/myReminders" element={<MyReminders />} />
