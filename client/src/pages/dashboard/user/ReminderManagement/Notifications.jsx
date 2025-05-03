@@ -2,36 +2,60 @@ import React, { useState, useEffect } from "react";
 import { TrashIcon } from "lucide-react";
 import axios from "axios";
 import DashboardLayout from "../../../../components/Common/Layout/DashboardLayout";
+import { useAuth } from "../../../../context/AuthContext";
+
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
 const Notifications = () => {
+  const { logout } = useAuth();
   const [completedReminders, setCompletedReminders] = useState([]);
+  const [error, setError] = useState(null);
 
-  // Fetch completed reminders
   useEffect(() => {
     fetchCompletedReminders();
   }, []);
 
   const fetchCompletedReminders = async () => {
     try {
-      const response = await axios.get("http://localhost:3001/api/reminders/");
+      const response = await axios.get(`${API_URL}/api/reminders/`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
       const completed = response.data.filter(
         (reminder) => reminder.completed === true
       );
       setCompletedReminders(completed);
+      setError(null);
     } catch (error) {
       console.error("Error fetching completed reminders:", error);
+      if (error.response?.status === 401) {
+        logout();
+        setError("Session expired. Please log in again.");
+      } else {
+        setError("Failed to fetch reminders. Try again.");
+      }
     }
   };
 
-  // Handle reminder delete
   const handleDeleteReminder = async (id) => {
     try {
-      await axios.delete(`http://localhost:3001/api/reminders/${id}`);
-      setCompletedReminders((prevReminders) =>
-        prevReminders.filter((reminder) => reminder._id !== id)
+      await axios.delete(`${API_URL}/api/reminders/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      setCompletedReminders((prev) =>
+        prev.filter((reminder) => reminder._id !== id)
       );
     } catch (error) {
       console.error("Error deleting reminder:", error);
+      if (error.response?.status === 401) {
+        logout();
+        setError("Session expired. Please log in again.");
+      } else {
+        setError("Failed to delete reminder. Try again.");
+      }
     }
   };
 
@@ -56,9 +80,21 @@ const Notifications = () => {
   return (
     <div>
       <DashboardLayout>
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto py-8 px-4">
+          {error && (
+            <div className="mb-6 p-4 bg-red-100 text-red-800 rounded-md flex justify-between items-center shadow-sm">
+              <span>{error}</span>
+              <button
+                onClick={() => setError(null)}
+                className="text-sm font-medium hover:underline"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
+
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-            <h1 className="text-2xl font-bold text-white">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               Completed Reminders
             </h1>
             {completedReminders.length > 0 && (
@@ -71,7 +107,6 @@ const Notifications = () => {
             )}
           </div>
 
-          {/* Notifications List */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             {completedReminders.length > 0 ? (
               completedReminders.map((reminder) => (
